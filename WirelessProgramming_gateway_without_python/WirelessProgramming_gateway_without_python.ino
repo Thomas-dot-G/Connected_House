@@ -63,8 +63,6 @@
   #define LED           9 // Moteinos hsave LEDs on D9
 #endif
 
-//String HEX PROGMEM = "FLX:100000000C9463000C94B8070C94E5070C948B00D7;FLX:100010000C948B000C948B000C948B000C948B0034;FLX:100020000C948B000C948B000C948B000C948B0024;FLX:100030000C948B000C948B000C948B000C948B0014;FLX:100040000C9412080C948B000C94F40A0C94260B5C;FLX:100050000C948B000C948B000C948B000C948B00F4;FLX:10055000FACF40E065E2CE010E94DE011E3308F0D2;FLX:100560001DE3E11004C0002319F000E401C000E81D;FLX:10057000E881F981008CF18DE02DCE01099580E8AC;FLX:100580000E943A0183E0810F0E943A018F2D0E9460;FLX:100590003A018D810E943A01802F0E943A010D2D6F;FLX:1005A000ED2CFC2C8E2D801B811730F4F7018191EE;FLX:1018300069F760957095809590959B01AC01BD010D;FLX:10184000CF010895EE0FFF1F0590F491E02D09944C;FLX:04185000F894FFCF3A;FLX:1018540000009A02800073616D706C65456E63725E;FLX:101864007970744B6579005374617274206E6F647F;FLX:10187400652E2E2E0053504920466C617368204912;FLX:101884006E6974204F4B210053504920466C61739C;FLX:101894006820496E6974204641494C210048656CB2;FLX:1018A4006C6F0000000000A30561011801F0054EF3;FLX:1018B400067502F104E7008F02100306026E0602A9;FLX:1018C40001F300000000002D0AA90BAF09C809BAF2;FLX:1018D400090B0A0D0A006E616E00696E66006F7670;FLX:0218E40066009C;FLX:00000001FF";
-
 RFM69 radio;
 char c = 0;
 char input[64]; //serial input buffer
@@ -81,8 +79,12 @@ void setup(){
 }
 
 void loop(){
-  byte inputLen = readSerialLine(input, 10, 64, 100); //readSerialLine(char* input, char endOfLineChar=10, byte maxLength=64, uint16_t timeout=1000);
-    //char s[64] = "FLX:58:1003A0000E940013F394ECCF84E294E00E94471281";
+
+    // Length of the input: things that will be sent to the target
+    byte inputLen;
+    // input it what will actually be sent to the targeted moteino
+
+    // For test
     if(targetID){
       inputLen = 4;
       char s[64] = "FLX?";
@@ -93,29 +95,24 @@ void loop(){
       char s[64] = "TO:123";
       strncpy(input, s, 64);
     }
-    //char s[64] = "FLX:100000000C9463000C94B8070C94E5070C948B00D7";
-    
-    //char* lines = strtok(HEX, ";");
-    //for(int i=0; i<sizeof(s); i=i+1){ Serial.println(s[i]);}
-    //input = "FLX:58:1003A0000E940013F394ECCF84E294E00E94471281";
-    //strncpy(input, s, 64);
-    Serial.println("THE INPUT");
-    Serial.println(input);
-    Serial.println("END");
+    // End of test
+   
+  // Look if the input is FLX? That will initialise the handcheck with the target
   if (inputLen==4 && input[0]=='F' && input[1]=='L' && input[2]=='X' && input[3]=='?') {
+    // If no target has been set, the code won,t try anything
     if (targetID==0)
       Serial.println("TO?");
     else
       CheckForSerialHEX((byte*)input, inputLen, radio, targetID, TIMEOUT, ACK_TIME, true);
+      /// returns TRUE if a HEX file transmission was detected and it was actually transmitted successfully
   }
+  // Look if the input is the initialization of the target (TO: NodeID)
   else if (inputLen>3 && inputLen<=6 && input[0]=='T' && input[1]=='O' && input[2]==':')
   {
     byte newTarget=0;
-    for (byte i = 3; i<inputLen; i++){ //up to 3 characters for target ID
+    for (byte i = 3; i<inputLen; i++){ //up to 3 characters for target ID, remove the TO:, keeping the NodeID
       if (input[i] >=48 && input[i]<=57){
-        Serial.println((input[i]));
-        newTarget = newTarget*10+input[i]-48;
-        Serial.println(newTarget);
+        newTarget = newTarget*10+input[i]-48; // set newTarget = NodeID (10 for the decimal in NodeID; -48 for the int convertion
       }
       else
       {
@@ -137,10 +134,10 @@ void loop(){
     }
 
   }
+  // If the input is neither FLX? nor TO:NodeID, it should be a HEX line.
   else if (inputLen>0) { //just echo back
     Serial.print("SERIAL IN > ");Serial.println(input);
   }
-  Serial.print("Radio:");
   Serial.print(radio.receiveDone());
   if (radio.receiveDone())
   {
