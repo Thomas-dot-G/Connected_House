@@ -40,9 +40,10 @@
 #include <RFM69.h>          //get it here: https://www.github.com/lowpowerlab/rfm69
 #include <SPI.h>
 #include <SPIFlash.h>      //get it here: https://www.github.com/lowpowerlab/spiflash
-#include <WirelessHEX69.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
+#include <WirelessHEX69_1.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
 #include <SD.h>
 #include <avr/pgmspace.h>
+#include <Ethernet.h>
 
 #define NODEID             254  //this node's ID, should be unique among nodes on this NETWORKID
 #define NETWORKID          249  //what network this node is on
@@ -68,6 +69,19 @@ char c = 0;
 char input[64]; //serial input buffer
 byte targetID=0;
 
+// L'adresse MAC du shield
+byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xA5, 0x7E };
+// L'objet qui nous servira a la communication
+EthernetClient client;
+// Le serveur à interroger
+char serveur[] = "lofty-complex-114513.appspot.com";//"64.233.184.141";
+
+char carlu = 0; // pour lire les caractères
+long derniereRequete = 0; // moment de la dernière requête
+const long updateInterval = 10000; // temps minimum entre deux requêtes
+bool etaitConnecte = false; // mémorise l'état de la connexion entre deux tours de loop
+
+
 void setup(){
   Serial.begin(SERIAL_BAUD);
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
@@ -76,9 +90,24 @@ void setup(){
   radio.setHighPower(); //only for RFM69HW!
 #endif
   Serial.println("Start wireless gateway...");
+
+  delay(1000);
+  
+  Ethernet.select(4);
+
+  char erreur = 0;
+  // On démarre le shield Ethernet SANS adresse ip (donc donnée via DHCP)
+  erreur = Ethernet.begin(mac);
+
+
+  Serial.println("Init...");
+  // Donne une seconde au shield pour s'initialiser
+  delay(1000);
+  Serial.println("Pret !");
 }
 
 void loop(){
+
 
     // Length of the input: things that will be sent to the target
     byte inputLen;
