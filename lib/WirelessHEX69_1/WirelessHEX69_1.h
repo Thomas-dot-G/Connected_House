@@ -50,6 +50,7 @@
 
 #include <RFM69.h>
 #include <SPIFlash.h>
+#include <Ethernet.h>
 
 //functions used in the REMOTE node
 void CheckForWirelessHEX(RFM69 radio, SPIFlash flash, boolean DEBUG=false, byte LEDpin=LED);
@@ -61,11 +62,11 @@ boolean HandleWirelessHEXDataWrapper(RFM69 radio, byte remoteID, SPIFlash flash,
 #endif
 
 //functions used in the MAIN node
-boolean CheckForSerialHEX(byte* input, byte inputLen, RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
+boolean CheckForSerialHEX(byte* input, byte inputLen, RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, EthernetClient *client=0, boolean DEBUG=false);
 boolean HandleSerialHandshake(RFM69 radio, byte targetID, boolean isEOF, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
-boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
+boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, EthernetClient* client=0, boolean DEBUG=false);
 #ifdef SHIFTCHANNEL
-boolean HandleSerialHEXDataWrapper(RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
+boolean HandleSerialHEXDataWrapper(RFM69 radio, byte targetID, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, EthernetClient* client=0, boolean DEBUG=false);
 #endif
 boolean waitForAck(RFM69 radio, uint8_t fromNodeID, uint16_t ACKTIMEOUT=ACK_TIMEOUT);
 
@@ -73,9 +74,8 @@ byte validateHEXData(void* data, byte length);
 byte prepareSendBuffer(char* hexdata, byte*buf, byte length, uint16_t seq);
 boolean sendHEXPacket(RFM69 radio, byte remoteID, byte* sendBuf, byte hexDataLen, uint16_t seq, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
 byte BYTEfromHEX(char MSB, char LSB);
-byte readSerialLine(char* input, char endOfLineChar=10, byte maxLength=64, uint16_t timeout=1000);
 void PrintHex83(byte* data, byte length);
-char* getHEXLineEthernetClient *client();
-void request(EthernetClient *client);
+char* getHEXLine(EthernetClient *client);
+EthernetClient request(EthernetClient *client);
 
 #endif

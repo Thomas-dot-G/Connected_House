@@ -31,9 +31,83 @@
 // Please maintain this license information along with authorship
 // and copyright notices in any redistribution of this code
 // **********************************************************************************
-#include <WirelessHEX69.h>
+#include <WirelessHEX69_1.h>
 #include <RFM69registers.h>
 #include <avr/wdt.h>
+#include <Ethernet.h>
+
+bool etaitConnecte = false; // mémorise l'état de la connexion entre deux tours de loop
+char serveur[] = "lofty-complex-114513.appspot.com";//"64.233.184.141";
+int inputsize = 0;
+
+// Use english comments
+char* getHEXLine(EthernetClient* client){
+  boolean go = true;
+  char line[64];
+  int index = 0;
+  while(go){
+  // on lit les caracteres s'il y en a de disponibles
+  if((*client).available()) {
+    line[index] = (*client).read();
+    index = index + 1;
+  }
+
+  // SI on etait connecté au tour precedent
+  // ET que maintenant on est plus connecte
+  // ALORS on ferme la connexion
+  if (etaitConnecte && !(*client).connected()) {
+    Serial.println();
+    Serial.println("Deconnexion !");
+    // On ferme le client
+    (*client).stop();
+    go = false;
+  }
+  // enregistre l'etat de la connexion (ouvert ou fermé)
+  etaitConnecte = (*client).connected();
+  }
+  inputsize = index;
+  return line;
+}
+
+// Use english comments
+EthernetClient request(EthernetClient* client) {
+  // On connecte notre Arduino sur "perdu.com" et le port 80 (defaut pour l'http)
+  char erreur = (*client).connect(serveur, 80);
+
+  if(erreur == 1) {
+      // Pas d'erreur ? on continu !
+      Serial.println("Connexion OK, envoi en cours...");
+
+      // On construit l'en-tete de la requete
+      (*client).println("GET /examplegoogleappengine HTTP/1.1");
+      (*client).println(serveur);
+      (*client).println("Connection: close");
+      (*client).println();
+
+      return *client;
+  } else {
+    // La connexion a échoué :(
+    // On ferme notre client
+    (*client).stop();
+    // On avertit l'utilisateur
+    Serial.println("Echec de la connexion");
+    switch(erreur) {
+      case(-1):
+        Serial.println("Time out");
+        break;
+      case(-2):
+        Serial.println("Serveur invalide");
+        break;
+      case(-3):
+        Serial.println("Tronque");
+        break;
+      case(-4):
+        Serial.println("Reponse invalide");
+        break;
+    }
+     return NULL;
+  }
+}
 
 /// Checks whether the last message received was a wireless programming request handshake
 /// If so it will start the handshake protocol, receive the new HEX image and 
@@ -196,32 +270,17 @@ boolean HandleWirelessHEXData(RFM69 radio, byte remoteID, SPIFlash flash, boolea
   }
 }
 
-// reads a line feed (\n) terminated line from the serial stream
-// returns # of bytes read, up to 255
-// timeout in ms, will timeout and return after so long
-byte readSerialLine(char* input, char endOfLineChar, byte maxLength, uint16_t timeout)
-{
-	// Use client (web) here to read bytes. Start input by ':', Stop when a ':' is seen (start of line) and then return.
-  byte inputLen = 0;
-  Serial.setTimeout(timeout);
-  inputLen = Serial.readBytesUntil(endOfLineChar, input, maxLength);
-  input[inputLen]=0;//null-terminate it
-  Serial.setTimeout(0);
-  //Serial.println();
-  return inputLen;
-}
-
 /// returns TRUE if a HEX file transmission was detected and it was actually transmitted successfully
-boolean CheckForSerialHEX(byte* input, byte inputLen, RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, boolean DEBUG, EthernetClient *client)
+boolean CheckForSerialHEX(byte* input, byte inputLen, RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, EthernetClient* client, boolean DEBUG)
 {
   if (inputLen == 4 && input[0]=='F' && input[1]=='L' && input[2]=='X' && input[3]=='?') {
     if (HandleSerialHandshake(radio, targetID, false, TIMEOUT, ACKTIMEOUT, DEBUG))
     {
       Serial.println("\nFLX?OK"); //signal serial handshake back to host script
 #ifdef SHIFTCHANNEL
-      if (HandleSerialHEXDataWrapper(radio, targetID, TIMEOUT, ACKTIMEOUT, DEBUG, client))
+      if (HandleSerialHEXDataWrapper(radio, targetID, TIMEOUT, ACKTIMEOUT, client, DEBUG))
 #else
-      if (HandleSerialHEXData(radio, targetID, TIMEOUT, ACKTIMEOUT, DEBUG))
+      if (HandleSerialHEXData(radio, targetID, TIMEOUT, ACKTIMEOUT, client, DEBUG))
 #endif
       {
         Serial.println("FLX?OK"); //signal EOF serial handshake back to host script
@@ -257,16 +316,16 @@ boolean HandleSerialHandshake(RFM69 radio, byte targetID, boolean isEOF, uint16_
 }
 
 #ifdef SHIFTCHANNEL
-boolean HandleSerialHEXDataWrapper(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, boolean DEBUG,  EthernetClient *client) {
+boolean HandleSerialHEXDataWrapper(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, EthernetClient* client, boolean DEBUG) {
   radio.setFrequency(radio.getFrequency() + SHIFTCHANNEL); //shift center freq by SHIFTCHANNEL amount
-  boolean result = HandleSerialHEXData(radio, targetID, TIMEOUT, ACKTIMEOUT, DEBUG, client);
+  boolean result = HandleSerialHEXData(radio, targetID, TIMEOUT, ACKTIMEOUT, client, DEBUG);
   radio.setFrequency(radio.getFrequency() - SHIFTCHANNEL); //shift center freq by SHIFTCHANNEL amount
   return result;
 }
 #endif
 
 
-boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, boolean DEBUG, EthernetClient *client) {
+boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16_t ACKTIMEOUT, EthernetClient* client, boolean DEBUG) {
   long now=millis();
   uint16_t seq=0, tmp=0, inputLen;
   byte remoteID = radio.SENDERID; //save the remoteID as soon as possible
@@ -276,25 +335,25 @@ boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16
 
   while(1) {
     
-    client = requete(client);
-    input = getHEXLine(client);
-    inputLen = strlen(input.size);
+    request(client);
+    *input = *getHEXLine(client);
+    inputLen = inputsize;
     // TODO: Change to get the next input without calling readSerialLine
     //inputLen = readSerialLine(input);
     if (inputLen == 0) goto timeoutcheck;
     tmp = 0;
     
     if (inputLen >= 6) { //FLX:9:
-      if (input[0]=='F' && input[1]=='L' && input[2]=='X')
+      if (*(input)=='F' && *(input+1)=='L' && *(input+2)=='X')
       {
-        if (input[3]==':')
+        if (*(input+3)==':')
         {
           byte index = 3;
           for (byte i = 4; i<8; i++) //up to 4 characters for seq number
           {
-            if (input[i] >=48 && input[i]<=57)
-              tmp = tmp*10+input[i]-48;
-            else if (input[i]==':')
+            if (*(input+i)>=48 && *(input+i)<=57)
+              tmp = tmp*10+*(input+i)-48;
+            else if (*(input+i)==':')
             {
               if (i==4)
                 return false;
@@ -303,7 +362,7 @@ boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16
             index++;
           }
           //Serial.print("input[index] = ");Serial.print("[");Serial.print(index);Serial.print("]=");Serial.println(input[index]);
-          if (input[++index] != ':') return false;
+          if (*(input+index) != ':') return false;
           now = millis(); //got good packet
           index++;
           byte hexDataLen = validateHEXData(input+index, inputLen-index);
@@ -326,7 +385,7 @@ boolean HandleSerialHEXData(RFM69 radio, byte targetID, uint16_t TIMEOUT, uint16
           }
           else Serial.println("FLX:INV");
         }
-        if (inputLen==7 && input[3]=='?' && input[4]=='E' && input[5]=='O' && input[6]=='F')
+        if (inputLen==7 && *(input+3)=='?' && *(input+4)=='E' && *(input+5)=='O' && *(input+6)=='F')
         {
           //SEND RADIO EOF
           return HandleSerialHandshake(radio, targetID, true, TIMEOUT, ACKTIMEOUT, DEBUG);
@@ -459,76 +518,3 @@ void resetUsingWatchdog(boolean DEBUG)
   while(1) if (DEBUG) Serial.print('.');
 }
 
-// Use english comments
-char* getHEXLine(EthernetClient *client){
-  var go = 1;
-  while(go){
-  // on lit les caracteres s'il y en a de disponibles
-  if(client.available()) {
-    carlu = client.read();
-    Serial.print(carlu);
-  }
-
-  // SI on etait connecté au tour precedent
-  // ET que maintenant on est plus connecte
-  // ALORS on ferme la connexion
-  if (etaitConnecte && !client.connected()) {
-    Serial.println();
-    Serial.println("Deconnexion !");
-    // On ferme le client
-    client.stop();
-    go = 0;
-  }
-
-  // Si on est deconnecte
-  // et que cela fait plus de xx secondes qu'on a pas fait de requete
-  if(!client.connected() && ((millis() - derniereRequete) > updateInterval)) {
-    requete();
-  }
-
-  // enregistre l'etat de la connexion (ouvert ou fermé)
-  etaitConnecte = client.connected();
-  }
-}
-
-// Use english comments
-EthernetClient request(EthernetClient *client) {
-  // On connecte notre Arduino sur "perdu.com" et le port 80 (defaut pour l'http)
-  char erreur = client.connect(serveur, 80);
-
-  if(erreur == 1) {
-      // Pas d'erreur ? on continu !
-      Serial.println("Connexion OK, envoi en cours...");
-
-      // On construit l'en-tete de la requete
-      client.println("GET /examplegoogleappengine HTTP/1.1");
-      client.println("Host: lofty-complex-114513.appspot.com");
-      client.println("Connection: close");
-      client.println();
-
-      // On enregistre le moment d'envoi de la dernière requete
-      derniereRequete = millis();
-      return client;
-  } else {
-    // La connexion a échoué :(
-    // On ferme notre client
-    client.stop();
-    // On avertit l'utilisateur
-    Serial.println("Echec de la connexion");
-    switch(erreur) {
-      case(-1):
-        Serial.println("Time out");
-        break;
-      case(-2):
-        Serial.println("Serveur invalide");
-        break;
-      case(-3):
-        Serial.println("Tronque");
-        break;
-      case(-4):
-        Serial.println("Reponse invalide");
-        break;
-    }
-     return NULL;
-  }
-}

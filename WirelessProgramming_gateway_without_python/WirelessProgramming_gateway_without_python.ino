@@ -73,14 +73,6 @@ byte targetID=0;
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x0E, 0xA5, 0x7E };
 // L'objet qui nous servira a la communication
 EthernetClient client;
-// Le serveur à interroger
-char serveur[] = "lofty-complex-114513.appspot.com";//"64.233.184.141";
-
-char carlu = 0; // pour lire les caractères
-long derniereRequete = 0; // moment de la dernière requête
-const long updateInterval = 10000; // temps minimum entre deux requêtes
-bool etaitConnecte = false; // mémorise l'état de la connexion entre deux tours de loop
-
 
 void setup(){
   Serial.begin(SERIAL_BAUD);
@@ -132,7 +124,7 @@ void loop(){
     if (targetID==0)
       Serial.println("TO?");
     else
-      CheckForSerialHEX((byte*)input, inputLen, radio, targetID, TIMEOUT, ACK_TIME, true);
+      CheckForSerialHEX((byte*)input, inputLen, radio, targetID, TIMEOUT, ACK_TIME, &client, true);
       /// returns TRUE if a HEX file transmission was detected and it was actually transmitted successfully
   }
   // Look if the input is the initialization of the target (TO: NodeID)
