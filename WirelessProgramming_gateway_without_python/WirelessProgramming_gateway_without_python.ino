@@ -40,9 +40,8 @@
 #include <RFM69.h>          //get it here: https://www.github.com/lowpowerlab/rfm69
 #include <SPI.h>
 #include <SPIFlash.h>      //get it here: https://www.github.com/lowpowerlab/spiflash
-#include <WirelessHEX69_1.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
-#include <SD.h>
-#include <avr/pgmspace.h>
+#include <WirelessHEX69_1.h> //modify from the original source: get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
+//#include <avr/pgmspace.h> // lib to use the PROGMEM memory (flash memory)
 #include <Ethernet.h>
 
 #define NODEID             254  //this node's ID, should be unique among nodes on this NETWORKID
@@ -81,8 +80,6 @@ void setup(){
 #ifdef IS_RFM69HW
   radio.setHighPower(); //only for RFM69HW!
 #endif
-  Serial.println("Start wireless gateway...");
-
   delay(1000);
   
   Ethernet.select(4);
@@ -92,10 +89,8 @@ void setup(){
   erreur = Ethernet.begin(mac);
 
 
-  Serial.println("Init...");
   // Donne une seconde au shield pour s'initialiser
   delay(1000);
-  Serial.println("Pret !");
 }
 
 void loop(){
@@ -173,13 +168,4 @@ void loop(){
     
     Serial.println();
   }
-  Blink(LED,5); //heartbeat
-}
-
-void Blink(byte PIN, int DELAY_MS)
-{
-  pinMode(PIN, OUTPUT);
-  digitalWrite(PIN,HIGH);
-  delay(DELAY_MS);
-  digitalWrite(PIN,LOW);
 }
