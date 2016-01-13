@@ -75,7 +75,8 @@ byte prepareSendBuffer(char* hexdata, byte*buf, byte length, uint16_t seq);
 boolean sendHEXPacket(RFM69 radio, byte remoteID, byte* sendBuf, byte hexDataLen, uint16_t seq, uint16_t TIMEOUT=DEFAULT_TIMEOUT, uint16_t ACKTIMEOUT=ACK_TIMEOUT, boolean DEBUG=false);
 byte BYTEfromHEX(char MSB, char LSB);
 void PrintHex83(byte* data, byte length);
-char* getHEXLine(EthernetClient *client);
+void getHEXLine(EthernetClient *client);
 EthernetClient request(EthernetClient *client);
+char incrementString(char c);
 
 #endif

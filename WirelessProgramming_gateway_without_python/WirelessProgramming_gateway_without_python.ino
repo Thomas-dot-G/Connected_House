@@ -55,7 +55,7 @@
 
 #define SERIAL_BAUD 115200
 #define ACK_TIME    50  // # of ms to wait for an ack
-#define TIMEOUT     300
+#define TIMEOUT     800
 
 #ifdef __AVR_ATmega1284P__
   #define LED           15 // Moteino MEGAs have LEDs on D15
