@@ -12,7 +12,7 @@
 // Tested on Teensy 3.1 with RF69 on PJRC breakout board
 
 #include <SPI.h>
-//#include <RH_RF69.h>
+#include <RH_RF69.h>
 #include <RFM69.h> //get it here: https://www.github.com/lowpowerlab/rfm69
 #include <SPIFlash.h>  //get it here: https://www.github.com/lowpowerlab/spiflash
 #include <OneWire.h> // Inclusion de la librairie OneWire
@@ -47,7 +47,7 @@ char input = 0;
 
 SPIFlash flash(FLASH_SS, 0xEF30); //EF30 for windbond 4mbit flash
 // Singleton instance of the radio driver
-//RH_RF69 rf69;
+RH_RF69 rf69;
 //RH_RF69 rf69(15, 16); // For RF69 on PJRC breakout board with Teensy 3.1
 
 OneWire ds(BROCHE_ONEWIRE); // Création de l'objet OneWire ds
@@ -250,11 +250,11 @@ void sendTemp(){
       memset(temp1,'\0',20);
       parseMessage((char*)buf,temp1,0);
       Serial.println(temp1);
-      if (strncmp((char*)temp1,NETWORKID,3)==0) {
+      if (strncmp((char*)temp1,(char*)NETWORKID,3)==0) {
         memset(temp1,'\0',20);
         parseMessage((char*)buf,temp1,1);  
         Serial.println(temp1);
-        if (strncmp((char*)temp1,NODEID,3)==0) {
+        if (strncmp((char*)temp1,(char*)NODEID,3)==0) {
             memset(temp1,'\0',20);
             parseMessage((char*)buf,temp1,3); 
             Serial.println(temp1);
