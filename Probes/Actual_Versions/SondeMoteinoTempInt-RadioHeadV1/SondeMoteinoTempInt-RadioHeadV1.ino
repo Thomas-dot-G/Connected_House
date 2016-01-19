@@ -16,7 +16,7 @@
 #include <RFM69.h> //get it here: https://www.github.com/lowpowerlab/rfm69
 #include <SPIFlash.h>  //get it here: https://www.github.com/lowpowerlab/spiflash
 #include <OneWire.h> // Inclusion de la librairie OneWire
-#include <avr/wdt.h>
+//#include <avr/wdt.h>
 #include <WirelessHEX69.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
  
 #define DS18B20 0x28     // Adresse 1-Wire du DS18B20
@@ -24,8 +24,8 @@
 
 #define DEBUG 1
 #define DISTRIBUTED_DEBUG     0
-#define NODEID 123
-#define NETWORKID 249
+#define NODEID "002"
+#define NETWORKID "100"
 #define GATEWAY "001"
 #define ID "003"
 #define VERSION "001"
@@ -119,15 +119,15 @@ void setup()
   // rf69.setTxPower(14);
 
   // The encryption key has to be the same as the one in the server
-  uint8_t key[] = "test";//{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-                  //  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-  //rf69.setEncryptionKey(key);
+  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  rf69.setEncryptionKey(key);
   Serial.println("init");
   //delay(10000);
 
   // Wireless programming setup
   pinMode(LED, OUTPUT);
-  radio.initialize(FREQUENCY,NODEID,NETWORKID);
+  radio.initialize(FREQUENCY,(int)NODEID,(int)NETWORKID);
   radio.encrypt(ENCRYPTKEY); //OPTIONAL
   #ifdef IS_RFM69HW
     radio.setHighPower(); //only for RFM69HW!
@@ -188,7 +188,8 @@ void sendTemp(){
   char buf2[20];
   
   // Lit la température ambiante à ~1Hz
-  if(getTemperature(&temp)) {
+ //if(getTemperature(&temp)) {
+ temp = random(-10,30);
      if (DEBUG ==1 ) {
       // Affiche la température
       Serial.print("Temperature : ");
@@ -197,12 +198,10 @@ void sendTemp(){
       Serial.write('C');
       Serial.println();
      }
-  }
-  delay(500);
+  //}
+  //delay(500);
   int currPeriod = millis()/TRANSMITPERIOD;
-  Serial.println(currPeriod, lastPeriod);
-  Serial.println(currPeriod, lastPeriod);
-  if (1==1)
+  if (currPeriod != lastPeriod)
   {
     lastPeriod=currPeriod;
 
@@ -234,7 +233,7 @@ void sendTemp(){
  
   rf69.send(data, sendSize);
   
-  //rf69.waitPacketSent();
+  rf69.waitPacketSent();
   // Now wait for a reply
 
 
@@ -275,7 +274,7 @@ void sendTemp(){
   {
     Serial.println("No reply, is rf69_server running?");
   }
-  delay(1000);
+  delay(400);
 }
 }
 
