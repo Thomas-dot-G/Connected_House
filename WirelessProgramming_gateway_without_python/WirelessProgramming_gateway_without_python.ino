@@ -44,8 +44,8 @@
 //#include <avr/pgmspace.h> // lib to use the PROGMEM memory (flash memory)
 #include <Ethernet.h>
 
-#define NODEID             254  //this node's ID, should be unique among nodes on this NETWORKID
-#define NETWORKID          249  //what network this node is on
+#define NODEID             001  //this node's ID, should be unique among nodes on this NETWORKID
+#define NETWORKID          100  //what network this node is on
 //Match frequency to the hardware version of the radio on your Moteino (uncomment one):
 #define FREQUENCY   RF69_433MHZ
 //#define FREQUENCY   RF69_868MH
@@ -53,7 +53,7 @@
 #define ENCRYPTKEY "sampleEncryptKey" //(16 bytes of your choice - keep the same on all encrypted nodes)
 //#define IS_RFM69HW             //uncomment only for RFM69HW! Leave out if you have RFM69W!
 
-#define SERIAL_BAUD 115200
+#define SERIAL_BAUD 9600
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define TIMEOUT     800
 
@@ -76,7 +76,7 @@ EthernetClient client;
 void setup(){
   Serial.begin(SERIAL_BAUD);
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
-  radio.encrypt(ENCRYPTKEY); //OPTIONAL
+  //radio.encrypt(ENCRYPTKEY); //OPTIONAL
 #ifdef IS_RFM69HW
   radio.setHighPower(); //only for RFM69HW!
 #endif
