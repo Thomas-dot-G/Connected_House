@@ -58,7 +58,7 @@ class AppliController < ApplicationController
 		end
 	end
 
-	def configuration
+	def channels
 		@channels = Array.new
 		#@types = Array.new
 		@fields = Array.new

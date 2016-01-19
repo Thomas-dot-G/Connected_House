@@ -76,17 +76,15 @@
 
             <% if current_user %>
 
-              <li class="<%= "active " if @menu == 'channels' %>dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=t(:channels)%> <b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                  <li><%= link_to t(:channels_my), channels_path %></li>
-                  <li><%= link_to t(:watched_channels), watched_channels_path %></li>
-                  <li><%= link_to t(:channels_public), public_channels_path %></li>
-                </ul>
-              </li>
+            
 
 
               <li <%= "class=active" if @menu == 'appli' %>><%= link_to "My house", '/appli' %></li>
+              <% if current_admin_user.present? %>
+                <li><%= link_to t(:admin), "/admin", 'data-no-turbolink' => 'true' %></li>
+              <% end %>
+
+		 <li <%= "class=active" if @menu == 'appli' %>><%= link_to "Channels", '/appli/channels#' %></li>
               <% if current_admin_user.present? %>
                 <li><%= link_to t(:admin), "/admin", 'data-no-turbolink' => 'true' %></li>
               <% end %>
