@@ -1,0 +1,246 @@
+<script type="text/javascript">
+
+    window.addEvent('domready', function () {
+        SqueezeBox.initialize({});
+        SqueezeBox.assign($$('a.modal'), {
+            parse: 'rel'
+            });
+        });
+</script>
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Dashboard</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="panel panel-blue">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-flash fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="panel-heading">
+                            <div class="huge">
+                                My energy
+                            </div>
+                        </div>
+
+                        <!-- /.panel-heading -->
+
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="panel-body">
+                <div id="bd" class="clearfix">
+                        
+                        <div class="loading" ng-hide="energyReady">
+                            <!--<img src="images/ajax-loader.gif" alt="loading">-->
+                            <i class="fa fa-spinner fa-spin"></i>
+                        </div>
+                        <div ng-show="energyReady" id="container">
+                        </div>
+                    </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer">
+                    <a href="#/energy/electricity"><span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span></a>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-sun-o fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="panel-heading">
+                            <div class="huge">
+                                My weather
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>	
+			<div class=" weather-panel panel-body">
+			<ul>
+				<li class="col-xs-12" id="li-forecast">
+					<div ng-hide="load" class="loading">
+						<!--<img src="images/ajax-loader.gif" alt="loading">-->
+                        <i class="fa fa-spinner fa-spin"></i>
+					</div>
+                    <div id="errors-message" ng-show="errors">
+                        <i class="fa fa-exclamation-triangle"></i><strong> {{errorCity}}</strong> does not exist...
+                    </div>
+                    <form ng-show="input" ng-submit="submitCity()">
+                        <div id="input-city" class="input-group">
+                            <span class="input-group-addon" id="basic-addon1"><i class="fa fa-map-marker"></i></span>
+                            <input type="text" class="form-control" placeholder="Enter a city" aria-describedby="basic-addon1" ng-model="city">
+                        </div>
+                    </form>
+					<table ng-show="ready" class="table table-striped table-bordered" id="forecast-index-table">
+						<thead>
+							<tr>
+								<th ng-repeat = "d in days">{{d}}</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td ng-repeat = "t in temperature track by $index">{{t}}°C</td>
+							</tr>
+							<tr>
+								<td ng-repeat = "i in icon track by $index"><img ng-src="images/weather/{{i.image}}.png" alt = "{{i.alt}}" title="{{i.title}}"></td>
+							</tr>
+						</tbody>
+					</table>
+                    <div id="info-city" ng-show="ready">
+                        <span id="city-name">{{city}}, FR </span><button type="button" ng-click="button()" class="btn btn-custom">New search</button>
+                    </div>
+                    
+				
+				</li>
+                <li class="col-xs-12">
+						<div class="h4 col-md-9">Outside temperature :</div>
+						<div class="h4 col-md-3">{{temp}} °C</div>
+				<li class="col-xs-12">
+						<div class="h4 col-md-9">Inside temperature :</div>
+						<div class="h4 col-md-3">{{inside}} °C</div>
+				<li class="col-xs-12">
+					<div class="h4 col-md-9">Outside humidity :</div>
+					<div class="h4 col-md-3">{{humidity}} %</div>
+				</li>
+				<li class="col-xs-12">
+					<div class="h4 col-md-9">Inside humidity :</div>				
+					<div class="h4 col-md-3">-</div>
+				</li>
+				<li class="col-xs-12">
+					<div class="h4 col-md-8">Atmospheric Pressure:</div>			
+					<div class="h4 col-md-4">{{pressure}} hPa</div>
+				</li>
+				<li class="col-xs-12">
+					<div class="h4 col-md-9">Wind direction :</div>		
+					<div class="h4 col-md-3">{{direction}} °</div>
+				</li>
+                	<li class="col-xs-12">
+					<div class="h4 col-md-9">Wind speed :</div>		
+					<div class="h4 col-md-3">{{speed}} km/h</div>
+				</li>
+				<li class="col-xs-12">
+					<div class="h4 col-md-9">Pluviometry:</div>				
+					<div class="h4 col-md-3">{{pluviometry}}</div>
+				</li>
+                <li class="col-xs-12">
+					<div class="h4 col-md-9">Luminosity:</div>				
+					<div class="h4 col-md-3">{{luminosity}} lx</div>
+				</li>
+				</ul>
+			</div>
+            <a href="#">
+                <div class="panel-footer">
+                    <a href="#/weather">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    </a>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+	<div class="col-lg-6">
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-lock fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="panel-heading">
+                            <div class="huge">
+                                My security
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer">
+                    <a href="#/weather">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    </a>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+	<div class="col-lg-6">
+        <div class="panel panel-blue">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-lightbulb-o fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="panel-heading">
+                            <div class="huge">
+                                My lighting
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer">
+                    <a href="#/weather">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    </a>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+	<div class="col-lg-6">
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-fire fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="panel-heading">
+                            <div class="huge">
+                                My heating
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="#">
+                <div class="panel-footer">
+                    <a href="#/weather">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    </a>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<!-- Morris Charts JavaScript -->
+<script src="bower_components/raphael/raphael-min.js"></script>
+<script src="bower_components/morrisjs/morris.min.js"></script>
+<script src="js/morris-data.js"></script>

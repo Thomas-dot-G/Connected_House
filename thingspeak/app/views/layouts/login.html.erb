@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	    <!-- pb avec chrome http://stackoverflow.com/questions/16251420/couldnt-load-template-using-templateurl-in-angularjs-->
+
+	    <meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="description" content="">
+	    <meta name="author" content="">
+
+	    <title>Maison Connectée - Prototype 1.0</title>
+
+	    <!-- Bootstrap Core CSS -->
+	    <link href="/bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+		
+		<!-- Weather CSS-->
+		<link href="/dist/css/weather-panel.css" rel="stylesheet">
+
+
+	    <!-- Timeline CSS -->
+	    <link href="/dist/css/timeline.css" rel="stylesheet">
+
+	    <!-- Custom CSS -->
+	    <link href="/dist/css/login.css" rel="stylesheet">
+
+	    <!-- jQuery -->
+	    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+
+
+	    <!-- Custom Fonts -->
+	    <link href="/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+	    <!-- Angular -->
+	    <script src="/bower_components/angular/angular.min.js"></script>
+	    <script src="/bower_components/angular-route/angular-route.js"></script>
+	    <script src="/bower_components/angularLocalStorage-nc/src/angularLocalStorage.js"></script>
+	    <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+	   
+
+	</head>
+	<body>
+		<div id="wrapper">
+			<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+	            <div class="navbar-header">
+	                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+	                    <span class="sr-only">Toggle navigation</span>
+	                    <span class="icon-bar"></span>
+	                    <span class="icon-bar"></span>
+	                    <span class="icon-bar"></span>
+	                </button>
+	                <a class="navbar-brand" href="#/">Connected house - Proto 1.0</a>
+	            </div>
+	            <!-- /.navbar-header -->
+
+	            <!-- /.navbar-static-side -->
+	        </nav>
+	        <%= yield %>
+		</div>
+		<!-- Bootstrap Core JavaScript -->
+	    <script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+
+	    <!-- Custom Theme JavaScript -->
+	    <script src="/dist/js/sb-admin-2.js"></script>
+	</body>
+</html>
+

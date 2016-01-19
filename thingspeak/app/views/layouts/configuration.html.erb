@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- pb avec chrome http://stackoverflow.com/questions/16251420/couldnt-load-template-using-templateurl-in-angularjs-->
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Maison Connectée - Prototype 1.0</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+
+	<!-- Weather CSS-->
+	<!--<link href="dist/css/weather-panel.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Timeline CSS -->
+    <link href="../dist/css/timeline.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
+    <link rel="stylesheet" href="../dist/css/bootstrap-select.css">
+    <link href="../dist/css/bootstrap-select.css.map">
+
+    <!-- jQuery -->
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+    <script src="../js/date.format.js"></script>
+
+    <!-- Custom Fonts -->
+    <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Highcharts -->
+    <script src="../js/mootools-core.js" type="text/javascript"></script><!-- modular and OO js framework -->
+    <script src="../js/modal.js" type="text/javascript"></script><!-- squeezebox-->
+    <script src="../js/slide.js" type="text/javascript"></script><!-- ??? -->
+    <script src="../js/highstock.js"></script><!-- stock charts -->
+    <script src="../js/exporting.js"></script><!-- export chart as an image -->
+
+    <!-- Angular -->
+    <script src="../bower_components/angular/angular.min.js"></script>
+    <script src="../bower_components/angular-route/angular-route.js"></script>
+    <script src="../bower_components/angularLocalStorage-nc/src/angularLocalStorage.js"></script>
+    <script src="../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="../js/ConfigurationApp.js"></script>
+    <script src="../js/ConfigurationController.js"></script>
+    <script src="../js/NewChannelController.js"></script>
+    <script src="../js/HeaderControllerConfig.js"></script>
+
+</head>
+
+<body>
+
+    <div ng-app="ConfigurationApp" id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Connected house - Proto 1.0</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+
+
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><%= link_to t(:myaccount), account_path %></li>
+                        <li><%= link_to t(:account_edit), edit_account_path %></li>
+                        <li><%= link_to t(:public_profile), user_profile_path(current_user.login) %></li>
+                        <li><%= link_to t(:profile_edit), edit_profile_path %></li>
+                        <li><a href="/appli/configuration"><i class="fa fa-gear fa-fw"></i> Configuration</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Sign out</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-fixed sidebar" role="navigation" ng-controller="HeaderControllerConfig">
+                <div class="sidebar-nav navbar-collapse navbar-fixed">
+                    <ul class="nav" id="side-menu">
+
+                        <li>
+                            <a ng-class="{ active: isActive('/appli')}" href="/appli#/"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#/energy"><i class="fa fa-flash fa-fw"></i> My Energy<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a ng-class="{ active: isActive('/energy/electricity')}" href="/appli#/energy/electricity">Electricity</a>
+                                </li>
+                                <li>
+                                    <a ng-class="{ active: isActive('/energy/water')}" href="/appli#/energy/water">Water</a>
+                                </li>
+                                <li>
+                                    <a ng-class="{ active: isActive('/energy/photovoltaic')}" href="/appli#/energy/photovoltaic">Photovoltaic panels</a>
+                                </li>
+
+
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                            <a ng-class="{ active: isActive('/weather')}" href="/appli#/weather"><i class="fa fa-sun-o fa-fw"></i> My Weather</a>
+                        </li>
+                        <li>
+                            <a ng-class="{ active: isActive('/forecast')}" href="/appli#/forecast"><i class="fa fa-cloud fa-fw"></i> Weather forecast</a>
+                        </li>
+						<li>
+                            <a ng-class="{ active: isActive('/advanced')}" href="/appli#/advanced"><i class="fa fa-sellsy fa-fw"></i> Advanced weather</a>
+                        </li>
+						<li>
+                           <a href="#"><i class="fa fa-lock fa-fw"></i> My Security</a>
+                        </li>
+						<li>
+                            <a href="#"><i class="fa fa-lightbulb-o fa-fw"></i> My Lighting</a>
+                        </li>
+						<li>
+                            <a href="#"><i class="fa fa-fire fa-fw"></i> My Heating</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <%= yield %>
+
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+
+
+
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
+    <script src="../dist/js/bootstrap-select.js"></script>
+
+</body>
+</html>
