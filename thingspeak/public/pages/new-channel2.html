@@ -1,0 +1,51 @@
+<!--<form ng-submit="submitAPIkey()">
+	<div ng-repeat="for k in count"class="input-group">
+	  <div class="input-group-btn">
+	    <select ng-model="type" class="selectpicker">
+	    	<option value="1">Electricity</option>
+	    	<option value="2">Water</option>
+	    	<option value="3">Weather</option>
+		</select>
+	  </div><!-- /btn-group -->
+	  <!--<input type="text" class="form-control" ng-model="key" placeholder="Device key" aria-label="...">
+	</div>
+	<div id="errors-message" ng-show="errors && !key.length">
+        <i class="fa fa-exclamation-triangle btn-add-api"></i>
+        {{errorMessage}}
+    </div>
+    <div id="errors-message" ng-show="errorsRequest">
+        <i class="fa fa-exclamation-triangle btn-add-api"></i>
+        {{errorMessageR}}
+    </div>
+    <div id="success-message" ng-show="success">
+        <i class="fa fa-thumbs-up btn-add-api"></i>
+        API key added
+    </div>
+	<button type="submit" class="btn-add-api btn btn-primary form-control" aria-label="...">Add</button>
+
+</form>-->
+<ul class="nav nav-tabs">
+  <li role="presentation" ng-class="{'active': current_channel == 1}"><a ng-click="current(1)" href="">Inside Temperature</a></li>
+  <li role="presentation" ng-class="{'active': current_channel == 2}"><a ng-click="current(2)" href="">Weather</a></li>
+  <li role="presentation" ng-class="{'active': current_channel == 3}"><a ng-click="current(3)" href="">Electricity</a></li>
+</ul>
+<br>
+
+<div id="errors-message" ng-show="errors">
+    <i class="fa fa-exclamation-triangle btn-add-api"></i>
+    {{errorMessage}}
+</div>
+<div id="success-message" ng-show="success">
+    <i class="fa fa-thumbs-up btn-add-api"></i>
+    {{successMessage}}
+</div>
+<form class="bs-example bs-example-form" role="form">
+	<div ng-repeat="k in count">
+      <div class="input-group">
+         <input type="text" class="form-control" ng-disabled="disabled[$index]" ng-model="keys[$index]" placeholder="{{field_name[$index]}}">
+         <span ng-hide="disabled[$index]" class="input-group-addon"><a href="" ng-click="newchannel($index+1, keys[$index])"><i class="fa fa-check"></i></a></span>
+         <span ng-show="disabled[$index]" class="input-group-addon"><a href="" ng-click="remove(keys[$index])"><i class="red-rm fa fa-times"></i></a></span>
+      </div>
+      <br>
+    </div>
+</form>

@@ -1,0 +1,71 @@
+<div ng-app="keyRegistrationApp" id="page-wrapper">
+  <div class="row">
+    <div class="col-lg-12">
+
+    </div>
+  </div>
+  <div class="container" ng-controller="StepController">
+    <div class="row bs-wizard" style="border-bottom:0;">
+            <div class="col-xs-3 bs-wizard-step complete">
+              <div class="text-center bs-wizard-stepnum">Step 1</div>
+              <div class="progress"><div class="progress-bar"></div></div>
+              <a href="#" class="bs-wizard-dot"></a>
+              <div class="bs-wizard-info text-center">Personal informations.</div>
+            </div>
+
+            <div class="col-xs-3 bs-wizard-step disabled"><!-- complete -->
+              <div class="text-center bs-wizard-stepnum">Step 2</div>
+              <div class="progress"><div class="progress-bar"></div></div>
+              <a href="#" class="bs-wizard-dot"></a>
+              <div class="bs-wizard-info text-center">Channel configuration.</div>
+            </div>
+
+            <div class="col-xs-3 bs-wizard-step disabled"><!-- complete -->
+              <div class="text-center bs-wizard-stepnum">Step 3</div>
+              <div class="progress"><div class="progress-bar"></div></div>
+              <a href="#" class="bs-wizard-dot"></a>
+              <div class="bs-wizard-info text-center">API keys.</div>
+            </div>
+        </div>
+  </div>
+
+  <div class="row">
+  </br></br>
+    <div id="form-signup">
+    <%= form_for(resource, :as => resource_name, :url => registration_path(resource_name), :html => {:class => 'form-horizontal'}) do |f| %>
+      <%= devise_error_messages! %>
+      <!-- <input name='userlogin' class='userlogin' /> -->
+
+      <div class="form-group">
+        <%= f.text_field :login, :class => 'form-control', :placeholder => t(:userid) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.text_field :email, :class => 'form-control', :placeholder => t(:email) %>
+      </div>
+
+      <div class="form-group">
+          <p class="form-control-static">
+            <%= time_zone_select 'user', 'time_zone', nil, {:default => 'Eastern Time (US & Canada)'}, {:class => 'form-control'} %>
+          </p>
+      </div>
+
+      <div class="form-group">
+        <%= f.password_field :password, :class => 'form-control', :placeholder => t(:password) %>
+      </div>
+
+      <div class="form-group">
+        <%= f.password_field :password_confirmation, :class => 'form-control', :placeholder => t(:password_confirmation) %>
+      </div>
+
+      <div class="form-group">
+        <p class="form-control-static"><%= f.submit t(:create_account), :id => "user_submit", :class => 'btn btn-lg btn-custom btn-block' %></p>
+      </div>
+
+    <% end %>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+  document.getElementById('user_login').focus();
+</script>
