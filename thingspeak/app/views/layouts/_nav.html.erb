@@ -89,6 +89,10 @@
                 <li><%= link_to t(:admin), "/admin", 'data-no-turbolink' => 'true' %></li>
               <% end %>
 
+			 <li <%= "class=active" if @menu == 'appli' %>><%= link_to "Sensors", '/appli/sensors#' %></li>
+              <% if current_admin_user.present? %>
+                <li><%= link_to t(:admin), "/admin", 'data-no-turbolink' => 'true' %></li>
+              <% end %>
             <% else %>
                 <li <%= "class=active" if @menu == 'channels' %>><%= link_to t(:channels), public_channels_path %></li>
             <% end %>

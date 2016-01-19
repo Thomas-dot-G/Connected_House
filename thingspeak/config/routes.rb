@@ -11,6 +11,7 @@ Thingspeak::Application.routes.draw do
   get 'appli/key_registrations', to: 'appli#key_registrations'
   get 'appli/getCapteurTemp', to: 'appli#getCapteurTemp'
   get 'appli/getAPIKeys', to: 'appli#getAPIKeys'
+  get 'appli/sensors', to: 'appli#sensors'
 
   # admin routes
   devise_for :admin_users, ActiveAdmin::Devise.config
