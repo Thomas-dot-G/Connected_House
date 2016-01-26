@@ -103,11 +103,9 @@ void setup()
   // rf69.setTxPower(14);
 
   // The encryption key has to be the same as the one in the server
-  uint8_t key[] = "test";//{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-                  //  0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
-  //rf69.setEncryptionKey(key);
-  Serial.println("init");
-  //delay(10000);
+  uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  rf69.setEncryptionKey(key);
 }
 
 void parseMessage(char *Message, char * Response, int value) {
@@ -151,16 +149,21 @@ void loop()
   uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
   uint8_t len = sizeof(buf);
   
-  if (DEBUG==1) Serial.println("Loop");
+  
   
   float temp;
   char MessageServeur[100];
   int   sendSize = 0;
   char buf2[20];
-  
+
+
+  // Test avec une valeur de temp arbitraire :
+  //temp = 1000.0;
   // Lit la température ambiante à ~1Hz
-  if(getTemperature(&temp)) {
-     if (DEBUG ==1 ) {
+  
+ //if(getTemperature(&temp)) {
+ temp = random(-10,30);
+     if (DEBUG == 2) {
       // Affiche la température
       Serial.print("Temperature : ");
       Serial.print(temp);
@@ -168,21 +171,17 @@ void loop()
       Serial.write('C');
       Serial.println();
      }
-  }
-  delay(500);
+  //}
   int currPeriod = millis()/TRANSMITPERIOD;
-  Serial.println(currPeriod, lastPeriod);
-  Serial.println(currPeriod, lastPeriod);
-  if (1==1)
+  if (currPeriod != lastPeriod)
   {
     lastPeriod=currPeriod;
 
 
-  Serial.println("Data Serveur:");  
+    
   memset(MessageServeur,'\0',100);
   sprintf(MessageServeur,"%s;%s;%s;%s;%s;%s;",NETWORKID,GATEWAY,NODEID,ID,VERSION,ftoa(buf2,temp,2));
   sendSize = strlen(MessageServeur);
-  Serial.println(MessageServeur);
     
     if (DEBUG==1) {
       Serial.println();
@@ -205,11 +204,11 @@ void loop()
  
   rf69.send(data, sendSize);
   
-  //rf69.waitPacketSent();
+  rf69.waitPacketSent();
   // Now wait for a reply
 
 
-  if (rf69.waitAvailableTimeout(500))
+  if (rf69.waitAvailableTimeout(5000))
   { 
     // Should be a reply message for us now   
     if (rf69.recv(buf, &len))
@@ -246,7 +245,7 @@ void loop()
   {
     Serial.println("No reply, is rf69_server running?");
   }
-  delay(1000);
+  delay(400);
 }
 }
 
