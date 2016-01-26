@@ -13,22 +13,40 @@
 
 #include <SPI.h>
 #include <RH_RF69.h>
- 
+#include <SPIFlash.h>      //get it here: https://www.github.com/lowpowerlab/spiflash
+#include <avr/wdt.h>
+#include <WirelessHEX69.h> //get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
+
 
 #define DEBUG 0
 #define DISTRIBUTED_DEBUG     0
-#define NODEID "015"
-#define NETWORKID "100"
+#define NODEID 123
+#define NETWORKID 249
 #define GATEWAY "001"
 #define ID "002"
 #define VERSION "001"
-#define SERIAL_BAUD   9600
+#define FREQUENCY   RF69_433MHZ
+#define SERIAL_BAUD   115200
+#define ACK_TIME    30  // # of ms to wait for an ack
+#define ENCRYPTKEY "sampleEncryptKey" //(16 bytes of your choice - keep the same on all encrypted nodes)
+#define LED           9 // Moteinos have LEDs on D9
+#ifdef __AVR_ATmega1284P__
+  #define FLASH_SS      23 // and FLASH SS on D23
+#else
+  #define FLASH_SS      8 // and FLASH SS on D8
+#endif
+
+
 int TRANSMITPERIOD = 3000; //transmit a packet to gateway so often (in ms)
  long lastPeriod = 0;
-  #define LED           9 // Moteinos have LEDs on D9
+
+SPIFlash flash(FLASH_SS, 0xEF30); //EF30 for windbond 4mbit flash
+
+RFM69 radio; // Radio for the wireless programming
+char input = 0;
 
 // Singleton instance of the radio driver
-RH_RF69 rf69;
+RH_RF69 rf69; // radio for sending the data
 //RH_RF69 rf69(15, 16); // For RF69 on PJRC breakout board with Teensy 3.1
 
 #include <SoftwareSerial.h>
@@ -69,24 +87,24 @@ int previous_IINST = 0;     // Monophasé - Intensité Instantanée, 3 numériqu
    Input : n/a
    Output : n/a
 ***********************************************/
-unsigned char sum = 32 ;		// Somme des codes ASCII du message + un espace
+unsigned char sum = 32 ;    // Somme des codes ASCII du message + un espace
 
 int checksum_ok(char *etiquette, char *valeur, char checksum) 
 {
        sum = 32 ;
-	for (i=0; i < strlen(etiquette); i++) sum = sum + etiquette[i] ;
-	for (i=0; i < strlen(valeur); i++) sum = sum + valeur[i] ;
-	sum = (sum & 63) + 32 ;
+  for (i=0; i < strlen(etiquette); i++) sum = sum + etiquette[i] ;
+  for (i=0; i < strlen(valeur); i++) sum = sum + valeur[i] ;
+  sum = (sum & 63) + 32 ;
         if (DEBUG) {
           Serial.print(etiquette);Serial.print(" ");
           Serial.print(valeur);Serial.print(" ");
-	  Serial.println(checksum);
-	  Serial.print("Sum = "); Serial.println(sum);
-	  Serial.print("Cheksum = "); Serial.println(int(checksum));
+          Serial.println(checksum);
+          Serial.print("Sum = "); Serial.println(sum);
+          Serial.print("Cheksum = "); Serial.println(int(checksum));
         }
-	if ( sum == checksum) return 1 ;	// Return 1 si checkum ok.
-	return 0 ;
-}
+  if ( sum == checksum) return 1 ;  // Return 1 si checkum ok.
+    return 0 ;
+  }
 
 int lireValeur(char *ligne, int offset){
     j=0;
@@ -103,7 +121,7 @@ int lireValeur(char *ligne, int offset){
       }
       else { //On vient de finir de lire une etiquette
           if (DEBUG) {
-	    Serial.print("Valeur : ");
+            Serial.print("Valeur : ");
             Serial.println(Donnee);
           }
           return j+2; // on est sur le dernier caractère de la valeur, il faut passer l'espace aussi (donc +2) pour arriver à la valeur
@@ -127,10 +145,10 @@ void lireChecksum(char *ligne, int offset){
         break;
       }
       if (DEBUG) {
-	    Serial.print("Chekcsum : ");
+            Serial.print("Chekcsum : ");
             Serial.println(Checksum);
-          }
       }
+    }
 
 }
 
@@ -139,14 +157,14 @@ void lireChecksum(char *ligne, int offset){
 
 int affecteEtiquette(char *etiquette, char *valeur){
 
- if(strcmp(etiquette,"ADCO") == 0) { 
+// if(strcmp(etiquette,"ADCO") == 0) { 
 //   memset(ADCO,'\0',12); 
 //   memcpy(ADCO, valeur,strlen(valeur)); 
 //   check[1]=1; 
 //   Serial.print("ADCO="); Serial.println(ADCO);
 //   Serial.print("valeur="); Serial.println(valeur);
- }
- else
+// }
+// else
  if(strcmp(etiquette,"HCHC") == 0) { 
    previous_HCHC = HCHC;
    HCHC = atol(valeur); 
@@ -159,7 +177,7 @@ int affecteEtiquette(char *etiquette, char *valeur){
    }
    
 //   check[2]=1;
-   if (DEBUG) {Serial.print(F("-->HCHC=")); Serial.println(HCHC);}
+//   if (DEBUG) {Serial.print(F("-->HCHC=")); Serial.println(HCHC);}
  //  strcpy(S_HCHC,valeur);
  //  Serial.print("valeur="); Serial.println(valeur);
  }
@@ -175,25 +193,25 @@ int affecteEtiquette(char *etiquette, char *valeur){
    }
    
 //   check[3]=1;
-   if (DEBUG) { Serial.print(F("-->HCHP=")); Serial.println(HCHP);}
+ //  if (DEBUG) { Serial.print(F("-->HCHP=")); Serial.println(HCHP);}
  //  Serial.print("valeur="); Serial.println(valeur);
  }
- else
- if(strcmp(etiquette,"HHPHC") == 0) { 
+// else
+// if(strcmp(etiquette,"HHPHC") == 0) { 
 //   memset(HHPHC,'\0',2); 
 //   strcpy(HHPHC, valeur); 
 //   check[4]=1;
  //  Serial.print("HHPHC="); Serial.println(HHPHC);
  //  Serial.print("valeur="); Serial.println(valeur);
- }
- else
- if(strcmp(etiquette,"PTEC") == 0) { 
+// }
+// else
+// if(strcmp(etiquette,"PTEC") == 0) { 
 //   memset(PTEC,'\0',4); 
 //   memcpy(PTEC, valeur,strlen(valeur)); 
 //   check[5]=1;
 //   Serial.print("PTEC="); Serial.println(PTEC);
 //   Serial.print("valeur="); Serial.println(valeur);
- }
+ //}
  else
  if(strcmp(Etiquette,"IINST") == 0) { 
    previous_IINST = IINST;
@@ -205,46 +223,46 @@ int affecteEtiquette(char *etiquette, char *valeur){
    }
    
 //   check[6]=1;
-   if (DEBUG) {Serial.print(F("-->IINST=")); Serial.println(IINST);}
+//   if (DEBUG) {Serial.print(F("-->IINST=")); Serial.println(IINST);}
  //  Serial.print("valeur="); Serial.println(valeur);
  }
- else
- if(strcmp(Etiquette,"PAPP") == 0) { 
+ //else
+ //if(strcmp(Etiquette,"PAPP") == 0) { 
 //   PAPP = atol(valeur); 
 //   check[7]=1;
  //  Serial.print("PAPP="); Serial.println(PAPP);
  //  Serial.print("valeur="); Serial.println(valeur); 
- }
- else
- if(strcmp(Etiquette,"IMAX") == 0) { 
+// }
+// else
+// if(strcmp(Etiquette,"IMAX") == 0) { 
 //   IMAX = atol(valeur); 
 //   check[8]=1;
  //  Serial.print("IMAX="); Serial.println(IMAX);
  //  Serial.print("valeur="); Serial.println(valeur); 
- }
- else
- if(strcmp(Etiquette,"OPTARIF") == 0) { 
+// }
+// else
+// if(strcmp(Etiquette,"OPTARIF") == 0) { 
 //   memset(OPTARIF,'\0',4); 
 //   memcpy(OPTARIF, valeur,strlen(valeur)); 
 //   check[9]=1;
  //  Serial.print("OPTARIF="); Serial.println(OPTARIF);
  //  Serial.print("valeur="); Serial.println(valeur); 
- }
- else
- if(strcmp(Etiquette,"ISOUSC") == 0) { 
+// }
+// else
+// if(strcmp(Etiquette,"ISOUSC") == 0) { 
  //  ISOUSC = atoi(valeur); 
 //   check[10]=1;
  //  Serial.print("ISOUSC="); Serial.println(ISOUSC);
  //  Serial.print("valeur="); Serial.println(valeur);  
- }
- else
- if(strcmp(Etiquette,"MOTDETAT") == 0) { 
+// }
+// else
+// if(strcmp(Etiquette,"MOTDETAT") == 0) { 
 //    memset(MOTDETAT,'\0',10); 
 //    memcpy(MOTDETAT, valeur, strlen(valeur)); 
   // check[0]=1;
   // Serial.print("MOTDETAT="); Serial.println(MOTDETAT);
   // Serial.print("valeur="); Serial.println(valeur);  
- }
+ //}
  else
  return 0;
 
@@ -266,7 +284,7 @@ int lireEtiquette(char *ligne){
       }
       else { //On vient de finir de lire une etiquette
           if (DEBUG) {
-	    Serial.print("Etiquette : ");
+      Serial.print("Etiquette : ");
             Serial.println(Etiquette);
           }
           return j+2; // on est sur le dernier caractère de l'etiquette, il faut passer l'espace aussi (donc +2) pour arriver à la valeur
@@ -336,7 +354,7 @@ void getTeleinfo2() {
             memset(Ligne,'\0',32); // on vide la ligne pour la lecture suivante
           j=0;
           }
-      }	
+      } 
             
     }
     
@@ -362,7 +380,7 @@ char *ftoa(char *a, double f, int precision)
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(SERIAL_BAUD);
   cptSerial.begin(1200);
 
   if (!rf69.init())
@@ -380,6 +398,20 @@ void setup()
   uint8_t key[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
                     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
   rf69.setEncryptionKey(key);
+    pinMode(LED, OUTPUT);
+  
+  // Wireless programming setup
+  radio.initialize(FREQUENCY,NODEID,NETWORKID);
+  radio.encrypt(ENCRYPTKEY); //OPTIONAL
+#ifdef IS_RFM69HW
+  radio.setHighPower(); //only for RFM69HW!
+#endif
+  Serial.print("Start node...");
+
+  if (flash.initialize())
+    Serial.println("SPI Flash Init OK!");
+  else
+    Serial.println("SPI Flash Init FAIL!");
 }
 
 void parseMessage(char *Message, char * Response, int value) {
@@ -417,7 +449,7 @@ void Blink(byte PIN, int DELAY_MS)
 // [SousReseau,To,From,Type,Version,...]
 // [NETWORKID;GATEWAY;NODEID;TYPE;VERSION...]
 
-void loop()
+void sendData()
 {
     char temp1[20];
   uint8_t buf[RH_RF69_MAX_MESSAGE_LEN];
@@ -514,5 +546,29 @@ void loop()
  // }
  // delay(400);
 }
+}
+
+void loop(){
+  
+  // Check for existing RF data, potentially for a new sketch wireless upload
+  // For this to work this check has to be done often enough to be
+  // picked up when a GATEWAY is trying hard to reach this node for a new sketch wireless upload
+  if (radio.receiveDone())
+  {
+    Serial.print("Got [");
+    Serial.print(radio.SENDERID);
+    Serial.print(':');
+    Serial.print(radio.DATALEN);
+    Serial.print("] > ");
+    for (byte i = 0; i < radio.DATALEN; i++)
+      Serial.print((char)radio.DATA[i], HEX);
+    Serial.println();
+    CheckForWirelessHEX(radio, flash, true);
+    Serial.println();
+  }  
+  ////////////////////////////////////////////////////////////////////////////////////////////
+  // Actual running code here
+  sendData();
+  ////////////////////////////////////////////////////////////////////////////////////////////
 }
 
