@@ -4,7 +4,7 @@ Thingspeak::Application.routes.draw do
   #get '/appli/login', to: 'login#login'
   get '/appli', to: 'appli#index'
   get '/appli/channels', to: 'appli#channels'
-  get 'appli/configuration/new-channel', to: 'appli#newchannel'
+  get '/appli/channels/newchannel', to: 'appli#newchannel'
   get 'appli/configuration/get-keys', to: 'appli#getkeys'
   get 'appli/configuration/refresh', to: 'appli#refresh'
   get 'appli/configuration/unbind-key', to: 'appli#unbind_key'
@@ -67,21 +67,6 @@ Thingspeak::Application.routes.draw do
 
   # search
   resources :tags
-
-  # specific feeds
-  get 'channels/:channel_id/feed(s)(.:format)' => 'feed#index'
-  get 'channels/:channel_id/field/:field_id(.:format)' => 'feed#index' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/fields/:field_id(.:format)' => 'feed#index' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/field/:field_id/:id(.:format)' => 'feed#show' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/fields/:field_id/:id(.:format)' => 'feed#show' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/feed(s)/last_average(.:format)' => 'feed#last_average'
-  get 'channels/:channel_id/feed(s)/last_median(.:format)' => 'feed#last_median'
-  get 'channels/:channel_id/feed(s)/last_sum(.:format)' => 'feed#last_sum'
-  get 'channels/:channel_id/feed/entry/:id(.:format)' => 'feed#show' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/feeds/entry/:id(.:format)' => 'feed#show' # not sure why this doesn't work with (s)
-  get 'channels/:channel_id/social_feed' => 'channels#social_feed'
-  get 'channels/:channel_id/feed(s)/debug' => 'feed#debug'
-  delete 'channels/:id/feeds' => 'channels#clear'
 
   # maps
   get 'channels/:channel_id/maps/channel_show' => 'maps#channel_show'
