@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.index, name='index'),
     url(r'^signin/$', views.signin, name='signin'),
+    url(r'^signup/$', views.signup, name='signup'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()
