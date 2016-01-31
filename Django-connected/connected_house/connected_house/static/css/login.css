@@ -46,14 +46,14 @@ body {
     width: 100%;
 }
 
-#page-wrapper {
+#page-wrapper-login {
     padding: 0	15px;
     min-height: 568px;
     background-color: #fff;
 }
 
 @media(min-width:768px) {
-    #page-wrapper {
+    #page-wrapper-login {
         position: inherit;
         margin-top: auto;
         padding-top: 10%;
