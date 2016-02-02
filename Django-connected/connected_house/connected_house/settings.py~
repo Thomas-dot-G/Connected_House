@@ -31,13 +31,14 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'app.apps.AppConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'timezone_field',
+    'website',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'connected_house.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['template'],
+        'DIRS': ['static'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
