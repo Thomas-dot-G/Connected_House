@@ -25,7 +25,7 @@ class SignInForm(AuthenticationForm):
         self.fields['password'].label = ''
         self.fields['password'].required = True
 
-class SignUpForm():#forms.ModelForm):
+class SignUpForm(forms.ModelForm):
 
     email = forms.EmailField(label='Email', widget=forms.EmailInput)
     password = forms.CharField(label='Confirm password', widget=forms.PasswordInput)

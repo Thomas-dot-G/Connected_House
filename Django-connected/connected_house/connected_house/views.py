@@ -10,8 +10,6 @@ def index(request):
     context = {"page":"index"}
     return render(request,'templates/index.html', context)
 
-    return redirect(request.GET.get('next') or settings.LOGIN_REDIRECT_URL)
-
 def signin(request):
     context = {"page":"signin"}
     if request.method == 'POST':
@@ -43,3 +41,8 @@ def signup(request):
         form = SignUpForm(request)
     context['login_form'] = form
     return render(request,'templates/signup.html', context)
+
+def dashboard(request):
+    context = {"page":"dashboard"}
+    
+    return render(request,'templates/dashboard.html', context)
