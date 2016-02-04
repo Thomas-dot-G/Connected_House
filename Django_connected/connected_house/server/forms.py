@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 
+from website.models import User
 
 class SignInForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
@@ -27,17 +28,25 @@ class SignInForm(AuthenticationForm):
 
 class SignUpForm(forms.ModelForm):
 
-    email = forms.EmailField(label='Email', widget=forms.EmailInput)
-    password = forms.CharField(label='Confirm password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm password', widget=forms.PasswordInput)
     
     class Meta:
-        fields = ('id', )
-        #model = User
+        model = User
+        widgets = {
+        'password': forms.PasswordInput(),
+        }
+        fields = ('name', 'email', 'timezone', 'password')
 
 
     def __init__(self, request=None, *args, **kwargs):
-        super(SignUpForm, self).__init__(request, *args, **kwargs)
+        super(SignUpForm, self).__init__(*args, **kwargs)
         for f in ['email', 'password']:
             self.fields[f].widget.attrs.update({'required': 'required'})
             self.fields[f].required = True
+
+
+    def clean(self):
+        if self.data['password'] == self.data['password2']:
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError('Passwords do not match')

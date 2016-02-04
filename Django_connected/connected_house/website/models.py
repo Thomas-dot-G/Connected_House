@@ -7,7 +7,7 @@ from timezone_field import TimeZoneField
 
 class User(models.Model):
     name = models.CharField(max_length=200,blank=True)
-    mail = models.EmailField(max_length=70,blank=True, primary_key=True)
+    email = models.EmailField(max_length=70,blank=True, primary_key=True)
     timezone = TimeZoneField(default='Europe/Paris')
     password = models.CharField(max_length=30)
 
