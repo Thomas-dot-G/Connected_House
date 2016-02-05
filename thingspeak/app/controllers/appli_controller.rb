@@ -58,7 +58,26 @@ class AppliController < ApplicationController
 		end
 	end
 
-	def configuration
+	def channels
+		@channels = Array.new
+		#@types = Array.new
+		@fields = Array.new
+		Association.all.each do |e|
+			if (e.user_id != nil) & (e.user_id == current_user.id)
+				channel = Channel.find(e.channel)
+				@channels.push(channel)
+				#@types.push(e.name)
+				@fields.push(e.field)
+			end
+		end
+		respond_to do |format|
+      format.html {	render layout: "configuration" }
+      format.json { render :json => {:channels => @channels, :fields => @fields} }
+      format.xml { render :xml => @channel.not_social.to_xml(Channel.private_options) }
+    end
+	end
+
+		def sensors
 		@channels = Array.new
 		#@types = Array.new
 		@fields = Array.new
