@@ -11,6 +11,9 @@ class User(models.Model):
     timezone = TimeZoneField(default='Europe/Paris')
     password = models.CharField(max_length=30)
 
+    def __unicode__(self):
+            return self.name
+
 class Bridge(models.Model):
     name = models.CharField(max_length=200, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
