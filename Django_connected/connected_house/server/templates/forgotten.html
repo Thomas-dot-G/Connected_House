@@ -1,0 +1,22 @@
+{% extends "templates/container.html" %}
+
+
+{% block content %}
+<div id="page-wrapper-login">
+                <div class="panel-body">
+                Enter your email address below and we'll send you a link where you can reset your password. 
+                        <form action="." method="post">
+                            {% csrf_token %} 
+                            <label>
+                                <span>Email</span> 
+                            </label>
+                            <input type="text" name="email" />
+                            <br>
+                            <input type="submit" value="Submit" class="btn btn-sm btn-primary">
+                        </form>
+                </div>
+
+    </div>
+
+
+{% endblock content %}

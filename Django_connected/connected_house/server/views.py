@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import redirect
-from  django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password, make_password
+from django.core.mail import send_mail
 
 from .forms import SignInForm, SignUpForm, EditAccountForm
 from website.models import User
@@ -85,6 +86,13 @@ def signup(request):
         form = SignUpForm()
     context['login_form'] = form
     return render(request,'templates/signup.html', context)
+
+def forgotten(request):
+    context = {"page":"forgotten"}
+    if request.method == 'POST':
+        send_mail('Connected House', 'You have requested a new password. If not, please ignore this message', 'noreply@gmail.com', [request.POST['email']], fail_silently=False)
+        return redirect('/')
+    return render(request,'templates/forgotten.html', context)
 
 def dashboard(request):
     context = {"page":"dashboard"}

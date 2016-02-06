@@ -18,14 +18,20 @@
                         <form action="." method="post">
                             {% csrf_token %} 
                             <div class="form-group">
+                            <label>
+                                <span>Email</span> 
+                            </label>
                             {{ login_form.email }}
                             <br>
+                            <label>
+                                <span>Password</span> 
+                            </label>
                             {{ login_form.password }}
                             </div>
                             <div class="form-group">
-                                <a>Forgot your password?</a>
+                                <a href="/forgotten_password">Forgot your password?</a>
                             </div>
-                            <div class="checkbox">
+                            <div class="form-group">
                                 {{ login_form.remember }}
                                 <label>
                                     <span>Remember my User ID </span> 
@@ -37,7 +43,7 @@
             </div>
             <div class="breadcrumb">
                     You do not have an account ?
-                    <a href="/sign_up">Sign up now</a>
+                    <a href="/signup">Sign up now</a>
             </div>
         </div>
     </div>
