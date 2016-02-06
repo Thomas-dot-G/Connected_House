@@ -29,6 +29,10 @@ urlpatterns = [
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
     url(r'^logout/$', views.logout, name='logout'),
+    url(r'^myaccount/$', views.myaccount, name='myaccount'),
+    url(r'^myaccount/edit/$', views.myaccount_edit, name='myaccount_edit'),
+    url(r'^myaccount/delete/$', views.myaccount_delete, name='myaccount_delete'),
+    url(r'^generateapi/$', views.generateapi, name='generateapi'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

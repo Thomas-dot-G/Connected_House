@@ -16,6 +16,8 @@
     <link href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.css' %}" type="text/css" rel="stylesheet">
     <link href="{% static 'bootstrap-3.3.6/dist/css/bootstrap.min.css' %}" type="text/css" rel="stylesheet">
     
+    <!-- Custom Fonts -->
+    <link href="{% static 'font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
     <!--
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     -->
@@ -23,6 +25,14 @@
     <link href="{% static "css/sb-admin-21.css" %}" rel="stylesheet" type="text/css">
     <link href="{% static "css/landing.css" %}" rel="stylesheet" type="text/css">
     <link href="{% static "css/login.css" %}" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static 'bootstrap-3.3.6/dist/js/bootstrap.min.js' %}"></script>
+
+
 
 
   </head>
@@ -39,6 +49,7 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand page-scroll" href="/">Connected house</a>
+                {% if user %}<a class="navbar-brand page-scroll" href="/dashboard/">My house</a>{% endif %}
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -47,10 +58,26 @@
 
               </ul>
               <ul class="nav navbar-nav navbar-right">
-
+                {% if '@' in user %}
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/myaccount">My Account</a></li>
+                        <li><a href="/myaccount/edit">Edit Account</a></li>
+                        <li><a href="/appli/configuration"><i class="fa fa-gear fa-fw"></i> Configuration</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                  </li>
+                {% else %}
                   <li><a href="/signin">SIGN IN</a></li>
                   <li><a href="/signup">SIGN UP</a></li>
-
+                {% endif %}
               </ul>
             </div>
             <!-- /.navbar-collapse -->
