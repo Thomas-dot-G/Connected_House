@@ -1,0 +1,90 @@
+{% extends "templates/container.html" %}
+
+{% block content %}
+<div id="page-wrapper">
+  <div class="row">
+    <div class="col-lg-12">
+
+    </div>
+  </div>
+  <div class="row">
+    </br></br>
+    <div class="col-sm-8 col-xs-7">
+
+      <ol class="breadcrumb">
+        <li><a href="/myaccount">My Account</a></li>
+        <li class="active">Edit Account</li>
+      </ol>
+
+      <div class="col-pad">
+        {{ error }}
+        <form id="form-signup" class="form-horizontal" action="." method="post">
+          {% csrf_token %} 
+          <div class="form-group">
+            <label class="col-sm-4 col-xs-4 control-label">User Name</label>
+            {{ account_form.name }}
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 col-xs-4 control-label">Email</label>
+            <input type="text" value="{{ user }}" disabled/>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 col-xs-4 control-label">Time Zone</label>
+              {{ account_form.timezone }}
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 col-xs-4 control-label">Change Password</label>
+            {{ account_form.password }}
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 col-xs-4 control-label">Actual Password</label>
+            {{ account_form.password2 }}
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-8 col-xs-offset-4 col-xs-8"><p class="form-control-static"><input type="submit" value="Update Account" class="btn btn-lg btn-custom btn-block"></div>
+          </div>
+
+          <br>
+          <h3>Want to delete your account ?</h3>
+          <form action="/deleteaccount/" method="post">
+            {% csrf_token %}
+            <button type="button" data-toggle="modal" data-target="#preview-modal" class="btn btn-delete btn-danger">Delete Account</button>
+          </form>
+        </form>
+
+        <div class="modal fade" id="preview-modal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title">Are you sure ?</h4>
+                </div>
+                <div class="modal-body">
+                  This will delete your account permanently !
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <a href="/myaccount/delete/" type="button" class="btn btn-primary">
+                    Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <br><br>
+
+</div>
+{% endblock content %}
