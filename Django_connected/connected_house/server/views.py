@@ -104,7 +104,7 @@ def myaccount(request):
         'email': email,
         'name': user.name,
         'timezone': user.timezone#,
-        #'api': user.api
+        'api': user.api
         })
         # We do not put user to avoid placing the password in the template
         # even if it is hashed
@@ -175,13 +175,11 @@ def getID(identification):
 def post_data(request):
     if request.method == 'POST':
         value = request.POST['data']
-        identification = getID("[ID;NETWORKID;GATEWAY;NODEID;TYPE;VERSION]")
-        print 'identification: '
-        print identification
+        identification = getID(request.POST['id'])
         sensor = Sensor.objects.get(name=identification[0])
         if sensor.NETWORKID is not identification[1] or sensor.bridge is not identification[2] or sensor.NODEID is not identification[3] or sensor.TYPE is not identification[4] or sensor.VERSION is not identification[5]:
             sensor.NETWORKID = identification[1]
-            #sensor.bridge = identification[2]
+            sensor.bridge = identification[2]
             sensor.NODEID = identification[3]
             sensor.TYPE = identification[4]
             sensor.VERSION = identification[5]
@@ -195,10 +193,7 @@ def post_data(request):
 @csrf_exempt
 def post_Version_Bridge(request):
     if request.method == 'POST':
-        #identification = request.POST['id']
-        identification = getID("[ID;NETWORKID;GATEWAY;NODEID;TYPE;VERSION]")
-        print 'identification: '
-        print identification
+        identification = getID(request.POST['id'])
         bridge = Bridge.objects.get(name=identification[0])
 
         if bridge.VERSION is not identification[5] or bridge.NODEID is not identification[3] or bridge.VERSION is not identification[5]:
@@ -219,12 +214,8 @@ def post_Version_Bridge(request):
 @csrf_exempt
 def post_Version_Probes(request):
     if request.method == 'POST':
-        #identification = request.POST['id']
-        identification = getID("[ID;NETWORKID;GATEWAY;NODEID;TYPE;VERSION]")
-        print 'identification: '
-        print identification
+        identification = getID(request.POST['id'])
         bridge = Bridge.objects.get(name=identification[0])
-
         probes = Sensor.objects.filter(bridge=bridge)
 
         for p in probes:
@@ -238,4 +229,3 @@ def post_Version_Probes(request):
     else:
         return redirect('/')
     return HttpResponse("OK")
-    
