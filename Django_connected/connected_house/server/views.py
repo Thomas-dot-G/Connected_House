@@ -103,7 +103,7 @@ def myaccount(request):
         context.update({
         'email': email,
         'name': user.name,
-        'timezone': user.timezone#,
+        'timezone': user.timezone,
         'api': user.api
         })
         # We do not put user to avoid placing the password in the template
@@ -158,16 +158,16 @@ def myaccount_edit(request):
     return render(request,'templates/account_edit.html', context)
 
 def getID(identification):
-    ID = identification[1:identification.index(';')]
-    remaining = identification[identification.index(';')+1:]
-    NETWORDID = remaining[:remaining.index(';')]
-    remaining = remaining[remaining.index(';')+1:]
-    GATEWAY = remaining[:remaining.index(';')]
-    remaining = remaining[remaining.index(';')+1:]
-    NODEID = remaining[:remaining.index(';')]
-    remaining = remaining[remaining.index(';')+1:]
-    TYPE = remaining[:remaining.index(';')]
-    remaining = remaining[remaining.index(';')+1:]
+    ID = identification[1:identification.index('-')]
+    remaining = identification[identification.index('-')+1:]
+    NETWORDID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    GATEWAY = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    NODEID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    TYPE = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
     VERSION = remaining[:-1]
     return [ID, NETWORDID, GATEWAY, NODEID, TYPE, VERSION]
 
@@ -175,11 +175,12 @@ def getID(identification):
 def post_data(request):
     if request.method == 'POST':
         value = request.POST['data']
+        print request.POST['id']
         identification = getID(request.POST['id'])
         sensor = Sensor.objects.get(name=identification[0])
         if sensor.NETWORKID is not identification[1] or sensor.bridge is not identification[2] or sensor.NODEID is not identification[3] or sensor.TYPE is not identification[4] or sensor.VERSION is not identification[5]:
             sensor.NETWORKID = identification[1]
-            sensor.bridge = identification[2]
+            sensor.bridge = Bridge.objects.get(name=identification[2])
             sensor.NODEID = identification[3]
             sensor.TYPE = identification[4]
             sensor.VERSION = identification[5]
