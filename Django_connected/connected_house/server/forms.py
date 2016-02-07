@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 
-from website.models import User
+from website.models import User, Data
 
 class SignInForm(forms.ModelForm):
 

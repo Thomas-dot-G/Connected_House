@@ -33,6 +33,9 @@ urlpatterns = [
     url(r'^myaccount/edit/$', views.myaccount_edit, name='myaccount_edit'),
     url(r'^myaccount/delete/$', views.myaccount_delete, name='myaccount_delete'),
     url(r'^generateapi/$', views.generateapi, name='generateapi'),
+    url(r'^postdata/$', views.post_data, name='post_data'),
+    url(r'^updateme/$', views.post_Version_Bridge, name='post_Version_Bridge'),
+    url(r'^updateprobes/$', views.post_Version_Probes, name='post_Version_Probes'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()
