@@ -54,9 +54,10 @@ class Channel(models.Model):
 class Data(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     value = models.IntegerField()
+    date = models.DateField(auto_now_add=True, null=True);
 
     def __unicode__(self):
-            return '%s/%s: %d' % (self.sensor.user, self.sensor.TYPE, self.value)
+            return '%s/%s: %d - %s' % (self.sensor.user, self.sensor.TYPE, self.value, self.date)
 
 class Version(models.Model):
     TYPE = models.CharField(max_length=200)

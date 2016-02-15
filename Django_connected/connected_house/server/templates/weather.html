@@ -1,0 +1,128 @@
+{% extends "templates/base_connected.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">My Weather</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+	<div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3>OUTSIDE TEMPERATURE</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+				<div class="col-lg-6">
+						<h3><em>Outside: </em><strong>{{temp}} °C</strong></h3>
+				</div>
+			</div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3>INSIDE TEMPERATURE</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+				<div class="col-lg-6">
+            <div class="custom-dropdown">
+               <select class="custom-dropdown__select" ng-model="capt" ng-change="control2(capteur[$index])" name="temperature" size="1">
+                    <option ng-repeat="i in capteur">Capteur {{i}}</option>
+					     </select>
+            </div>
+				</div>
+				<div class="col-lg-6">
+                    <h3><em>Inside: </em><strong>{{inside}} °C</strong></h3>
+                </div>
+			</div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+    <div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3>HUMIDITY</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="col-lg-6">
+						<h3><em>Outside: </em><strong>{{humidity}} %</strong></h3>
+				</div>
+				<div class="col-lg-6">
+                        <h3><em>Inside: </em><strong>-</strong></h3>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+
+    <!-- /.col-lg-6 -->
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3>ATMOSPHERIC PRESSURE</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <h3><em>Current: </em><strong>{{pressure}} hPa</strong></h3>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+	<div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3>WIND</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+               <div class="col-lg-6">
+						<h3><em>Current direction: </em><strong>{{direction}} °</strong></h3>
+				</div>
+				<div class="col-lg-6">
+                        <h3><em>Current Speed: </em><strong>{{speed}} km/h</strong></h3>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+	<div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3>PLUVIOMETRY</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <h3><em>Current: </em><strong>{{pluviometry}}</strong></h3>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    	<div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3>LUMINOSITY</h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <h3><em>Current: </em><strong>{{luminosity}} lx</strong></h3>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+{% endblock content %}

@@ -6,6 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
+from django.db.models import Avg
 
 from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms
 from website.models import User, Sensor, Data, Version, Bridge
@@ -162,9 +163,45 @@ def electricity(request):
     email = check_auth(request)
     context.update({"user": email})
     user = User.objects.get(email=email)
-    context.update({"currentElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Temperature').first()})
-
+    context.update({"currentElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').first().value})
+    context.update({"averageElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').aggregate(Avg('value'))['value__avg']})
+    context.update({"since": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').last().date})
     return render(request,'templates/electricity.html', context)
+
+def water(request):
+    context = {"page":"water"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/water.html', context)
+
+def photovoltaic(request):
+    context = {"page":"photovoltaic"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/photovoltaic.html', context)
+
+def weather(request):
+    context = {"page":"weather"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/weather.html', context)
+
+def forecast(request):
+    context = {"page":"forecast"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/forecast.html', context)
+
+def advanced(request):
+    context = {"page":"advanced"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/advanced.html', context)
 
 def newsensors(request):
     context = {"page":"newsensors"}

@@ -1,26 +1,17 @@
-pistApp.controller('ElectricityController', ['$scope', '$http', '$interval', function($scope, $http, $interval){
-  $scope.ready = false;
-  $scope.averageReady = false;
-  $scope.currentReady = false;
-  
-
-  $scope.getAverage = function() {
-    $scope.averageReady = false;
-    $http.get('http://kgb.emn.fr:8001/channels/4/field/6.json?key=94BREBU27ZFTXJ38&results=22000')
-      .then(function(result) {
-        var sum = 0;
-        var n = 0;
-        var feeds = result.data.feeds;
-        feeds.forEach(function(element){
-          if (element.field6 !== null)
-            sum += parseInt(element.field6);
-            n++;
-        });
-        $scope.since = new Date(feeds[0].created_at).format("dd/mm/yyyy");
-        $scope.averageElectricity = (sum*220*24/(n*1000)).toFixed(3);
-        $scope.averageReady = true;
-      });
-  };
+  function getAverage() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            console.log(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", 'http://kgb.emn.fr:8001/channels/4/field/6.json?key=94BREBU27ZFTXJ38&results=22000', true); // true for asynchronous 
+    xmlHttp.send(null);
+};
+  //       var since = new Date(feeds[0].created_at).format("dd/mm/yyyy");
+  //       var averageElectricity = (sum*220*24/(n*1000)).toFixed(3);
+  //       var averageReady = true;
+  //     });
+  // };
   $scope.getAverage();
   var intervalAverage = $interval($scope.getAverage, 30000);
   
@@ -90,8 +81,8 @@ pistApp.controller('ElectricityController', ['$scope', '$http', '$interval', fun
     });
   }  
 
-  $scope.getGlobal = function() {
-    $scope.ready = false;
+  function getGlobal() {
+    var ready = false;
     $.getJSON('http://kgb.emn.fr:8001/util/my-from-sql.php?channel_id=4&field=field6&callback=?', function(data) {
             $scope.$apply(function(){
               $scope.ready = true;
@@ -182,5 +173,3 @@ pistApp.controller('ElectricityController', ['$scope', '$http', '$interval', fun
   };
   $scope.getGlobal();
   
-
-}]);

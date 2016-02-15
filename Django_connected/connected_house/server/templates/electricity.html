@@ -2,6 +2,8 @@
 
 {% block content %}
 
+{% load staticfiles %}
+<script src="{% static 'js/ElectricityCtrl.js' %}"></script>
 <script type="text/javascript">
 
     window.addEvent('domready', function () {
@@ -24,7 +26,7 @@
     <div class="col-lg-12">
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3>CURRENT VALUE  <span><button ng-click="getCurrent()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+                <h3>CURRENT VALUE  <span><button onclick="getCurrent()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
@@ -42,7 +44,7 @@
     <div class="col-lg-12">
         <div class="panel panel-success">
             <div class="panel-heading">
-                <h3>AVERAGE VALUE  <span><button ng-click="getAverage()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+                <h3>AVERAGE VALUE  <span><button onclick="getAverage()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
@@ -61,7 +63,7 @@
     <div class="col-lg-12">
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3>GLOBAL  <span><button ng-click="getGlobal()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+                <h3>GLOBAL  <span><button onclick="getGlobal()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">

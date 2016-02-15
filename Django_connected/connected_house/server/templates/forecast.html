@@ -1,0 +1,48 @@
+{% extends "templates/base_connected.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Weather forecast</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+	<div id="errors-message" ng-show="errors">
+        <i class="fa fa-exclamation-triangle"></i><strong> {{errorCity}}</strong> does not exist...
+    </div>
+	<form ng-submit="submitCity()">
+		<div id="input-city" class="input-group">
+			<span class="input-group-addon" id="basic-addon1"><i class="fa fa-map-marker"></i></span>
+		  	<input type="text" class="form-control" placeholder="Enter a city" aria-describedby="basic-addon1" ng-model="city">
+		</div>
+	</form>
+	<div ng-hide="ready || errors " class="loading">
+        <!--<img src="images/ajax-loader.gif" alt="loading">-->
+        <i class="fa fa-spinner fa-spin"></i>
+        Loading chart...
+    </div>
+    <table ng-show="ready && !errors" class="table table-striped" id="forecast-table">
+		<thead>
+			<tr>
+				<th ng-repeat = "d in days">{{d}}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td ng-repeat = "t in temp track by $index">{{t.morn}}°C | {{t.eve}}°C</td>
+			</tr>
+			<tr>
+				<td ng-repeat = "i in image track by $index"><img ng-src="images/weather/{{i}}.png"></td>
+			</tr>
+			<tr>
+				<td ng-repeat = "w in weather track by $index">{{w}}</td>
+			</tr>
+			<tr>
+				<td ng-repeat = "w in wind track by $index">{{w}} km/h</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+{% endblock content %}
