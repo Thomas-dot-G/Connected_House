@@ -1,2 +1,2 @@
 *.py[cod]
-*.sqlite3
+Django_connected/connected_house/db.sqlite3

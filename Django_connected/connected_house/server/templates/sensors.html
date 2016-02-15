@@ -1,0 +1,27 @@
+{% extends "templates/container.html" %}
+
+{% block content %}
+
+</br></br></br></br>
+<table class="table table-condensed table-bordered">
+	<tr>
+		<th>Name</th>
+		<th>Bridge</th>
+		<th>NetworkId</th>
+		<th>NodeId</th>
+		<th>Version</th>
+		<th>Type</th>
+	</tr>
+	{% for sensor in sensors %}
+	<tr>
+		<td>{{ sensor.name }}</td>
+		<td>{{ sensor.bridge }}</td>
+		<td>{{ sensor.NETWORKID }}</td>
+		<td>{{ sensor.NODEID }}</td>
+		<td>{{ sensor.VERSION }}</td>
+		<td>{{ sensor.TYPE }}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+{% endblock content %}

@@ -104,7 +104,7 @@ def myaccount(request):
         'email': email,
         'name': user.name,
         'timezone': user.timezone,
-        'api': user.api
+        'api': user.API_KEY
         })
         # We do not put user to avoid placing the password in the template
         # even if it is hashed
@@ -159,7 +159,9 @@ def myaccount_edit(request):
 
 def newsensors(request):
     context = {"page":"newsensors"}
-    context.update({"user": check_auth(request)})
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user": email})
     if request.method == 'POST':
         form = SensorForms(request, data=request.POST)
             
@@ -167,20 +169,28 @@ def newsensors(request):
 
         if is_valid:
             name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            password2 = form.cleaned_data['password2']
-            timezone = form.cleaned_data['timezone']
-            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone)
-            user.save()
-            return login(request, user)
+            bridge = form.cleaned_data['bridge']
+            networkid = form.cleaned_data['NETWORKID']
+            nodeid = form.cleaned_data['NODEID']
+            Type = form.cleaned_data['TYPE']
+            version = form.cleaned_data['VERSION']
+            sensor = Sensor(name=name, user=user, bridge=bridge, NETWORKID=networkid, NODEID=nodeid, TYPE=Type, VERSION=version)
+            sensor.save()
+            return redirect('sensors')
     else:
         form = SensorForms()
+    form.fields['bridge'].queryset = Bridge.objects.filter(user=user)
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
 def sensors(request):
-    return null
+    context = {"page":"newsensors"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user": email})
+    context.update({"sensors": Sensor.objects.all().filter(user=user)})
+    print Sensor.objects.filter(user=user)
+    return render(request,'templates/sensors.html', context)
 
 def getID(identification):
     ID = identification[1:identification.index('-')]

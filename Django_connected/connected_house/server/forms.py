@@ -80,16 +80,13 @@ class EditAccountForm(forms.ModelForm):
 
 
 class SensorForms(forms.ModelForm):
-
-    identification = forms.CharField(label='ID')
     
     class Meta:
         model = Sensor
-        fields = ('name', 'user', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
+        fields = ('name', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
 
     def __init__(self, request=None, *args, **kwargs):
         super(SensorForms, self).__init__(*args, **kwargs)
-
 
     def clean(self):
         return self.cleaned_data
