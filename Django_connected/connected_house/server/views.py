@@ -2,10 +2,13 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import redirect
-from  django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password, make_password
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
 
 from .forms import SignInForm, SignUpForm, EditAccountForm
-from website.models import User
+from website.models import User, Sensor, Data, Version, Bridge
 
 # Create your views here.
 
@@ -54,7 +57,6 @@ def signin(request):
             try:
                 user = User.objects.get(email=email)
             except Exception as e:
-                print 'HGGGGGGGGGGGG'
                 context['login_form'] = form
                 context.update({"error": True})
                 return render(request,'templates/signin.html', context)
@@ -101,8 +103,8 @@ def myaccount(request):
         context.update({
         'email': email,
         'name': user.name,
-        'timezone': user.timezone#,
-        #'api': user.api
+        'timezone': user.timezone,
+        'api': user.api
         })
         # We do not put user to avoid placing the password in the template
         # even if it is hashed
@@ -154,3 +156,77 @@ def myaccount_edit(request):
         form = EditAccountForm(initial=data)
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
+
+def getID(identification):
+    ID = identification[1:identification.index('-')]
+    remaining = identification[identification.index('-')+1:]
+    NETWORDID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    GATEWAY = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    NODEID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    TYPE = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    VERSION = remaining[:-1]
+    return [ID, NETWORDID, GATEWAY, NODEID, TYPE, VERSION]
+
+@csrf_exempt
+def post_data(request):
+    if request.method == 'POST':
+        value = request.POST['data']
+        print request.POST['id']
+        identification = getID(request.POST['id'])
+        sensor = Sensor.objects.get(name=identification[0])
+        if sensor.NETWORKID is not identification[1] or sensor.bridge is not identification[2] or sensor.NODEID is not identification[3] or sensor.TYPE is not identification[4] or sensor.VERSION is not identification[5]:
+            sensor.NETWORKID = identification[1]
+            sensor.bridge = Bridge.objects.get(name=identification[2])
+            sensor.NODEID = identification[3]
+            sensor.TYPE = identification[4]
+            sensor.VERSION = identification[5]
+            sensor.save()
+        data = Data(sensor=Sensor.objects.get(name=identification[0]), value=value)
+        data.save()
+    else:
+        return redirect('/')
+    return HttpResponse("OK")
+
+@csrf_exempt
+def post_Version_Bridge(request):
+    if request.method == 'POST':
+        identification = getID(request.POST['id'])
+        bridge = Bridge.objects.get(name=identification[0])
+
+        if bridge.VERSION is not identification[5] or bridge.NODEID is not identification[3] or bridge.VERSION is not identification[5]:
+            bridge.NETWORKID = identification[1]
+            bridge.NODEID = identification[3]
+            bridge.VERSION = identification[5]
+            bridge.save()
+
+        if bridge.VERSION is not Version.objects.get(TYPE="Bridge"):
+            response = HttpResponse(content_type='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+            response['X-Sendfile'] = smart_str('versions/bridge.hex')
+            return response
+    else:
+        return redirect('/')
+    return HttpResponse("OK")
+
+@csrf_exempt
+def post_Version_Probes(request):
+    if request.method == 'POST':
+        identification = getID(request.POST['id'])
+        bridge = Bridge.objects.get(name=identification[0])
+        probes = Sensor.objects.filter(bridge=bridge)
+
+        for p in probes:
+            print Version.objects.get(TYPE=p.TYPE)
+            if p.VERSION is not Version.objects.get(TYPE=p.TYPE):
+                response = HttpResponse(content_type='application/force-download')
+                response['HTTP_ACCEPT_LANGUAGE'] =  p.NODEID
+                response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+                response['X-Sendfile'] = smart_str('versions/%s.hex' % p.TYPE)
+                return response
+    else:
+        return redirect('/')
+    return HttpResponse("OK")
