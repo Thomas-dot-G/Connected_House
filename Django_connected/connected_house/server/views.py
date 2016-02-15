@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from  django.contrib.auth.hashers import check_password, make_password
 
 from .forms import SignInForm, SignUpForm, EditAccountForm
-from website.models import User
+from website.models import User, Data
 
 # Create your views here.
 
@@ -154,3 +154,12 @@ def myaccount_edit(request):
         form = EditAccountForm(initial=data)
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
+
+def electricity(request):
+    context = {"page":"electricity"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    context.update({"currentElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Temperature').first()})
+
+    return render(request,'templates/electricity.html', context)

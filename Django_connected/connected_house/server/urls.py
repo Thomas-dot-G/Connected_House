@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^myaccount/edit/$', views.myaccount_edit, name='myaccount_edit'),
     url(r'^myaccount/delete/$', views.myaccount_delete, name='myaccount_delete'),
     url(r'^generateapi/$', views.generateapi, name='generateapi'),
+    url(r'^energy/electricity/$', views.electricity, name='electricity'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

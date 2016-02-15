@@ -1,0 +1,90 @@
+{% extends "templates/base_connected.html" %}
+
+{% block content %}
+
+<script type="text/javascript">
+
+    window.addEvent('domready', function () {
+        SqueezeBox.initialize({});
+        SqueezeBox.assign($$('a.modal'), {
+            parse: 'rel'
+            });
+        });
+</script>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Electricity</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3>CURRENT VALUE  <span><button ng-click="getCurrent()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="loading" ng-hide="currentReady">
+                    <!--<img src="images/ajax-loader.gif" alt="loading">-->
+                    <i class="fa fa-spinner fa-spin"></i>
+                </div>
+                <h3 ng-show="currentReady">{{currentElectricity}} W</h3>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+    <div class="col-lg-12">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3>AVERAGE VALUE  <span><button ng-click="getAverage()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="loading" ng-hide="averageReady">
+                    <!--<img src="images/ajax-loader.gif" alt="loading">-->
+                    <i class="fa fa-spinner fa-spin"></i>
+                </div>
+                <h3 ng-show="averageReady">{{averageElectricity}} kWh <small> Since {{since}} </small> </h3>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+
+    <!-- /.col-lg-6 -->
+    <div class="col-lg-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3>GLOBAL  <span><button ng-click="getGlobal()" class="btn-transpa"><i class="fa fa-refresh"></i></button></span></h3>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="flot-chart">
+                    <div id="bd" class="clearfix">
+                        
+
+                        <div ng-hide="ready" class="loading">
+                            <!--<img src="images/ajax-loader.gif" alt="loading">-->
+                            <i class="fa fa-spinner fa-spin" title="Refresh"></i>
+                            Loading chart...
+                        </div>
+                        <div ng-show="ready" id="container">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+<!-- /.row -->
+
+{% endblock content %}
