@@ -21,6 +21,15 @@ class Bridge(models.Model):
     NODEID = models.CharField(max_length=200, default='0')
     VERSION = models.CharField(max_length=200, default='V0')
 
+    def __unicode__(self):
+        return '%s: %s' % (self.user, self.name)
+
+class Type(models.Model):
+    name = models.CharField(max_length=200, primary_key=True)
+    
+    def __unicode__(self):
+            return self.name
+
 class Sensor(models.Model):
     name = models.CharField(max_length=200, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -28,8 +37,10 @@ class Sensor(models.Model):
     NETWORKID = models.CharField(max_length=200, null=True)
     NODEID = models.CharField(max_length=200, default='0')
     VERSION = models.CharField(max_length=200, default='V0')
-    TYPE = models.CharField(max_length=200, default='Bridge')
+    TYPE = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True)
     
+    def __unicode__(self):
+            return '%s: %s' % (self.user, self.name)
 
 class Channel(models.Model):
     name = models.CharField(max_length=200)
@@ -37,10 +48,20 @@ class Channel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sensors = models.ManyToManyField(Sensor)
 
+    def __unicode__(self):
+            return '%s/%s' % (self.name, self.user)
+
 class Data(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     value = models.IntegerField()
 
+    def __unicode__(self):
+            return '%s/%s: %d' % (self.sensor.user, self.sensor.TYPE, self.value)
+
 class Version(models.Model):
     TYPE = models.CharField(max_length=200)
     lastVersion = models.CharField(max_length=200)
+
+    def __unicode__(self):
+            return '%s: %s' % (self.TYPE, self.lastVersion)
+
