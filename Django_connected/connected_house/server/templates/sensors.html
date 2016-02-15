@@ -4,6 +4,25 @@
 
 </br></br></br></br>
 <table class="table table-condensed table-bordered">
+	Bridges
+	<tr>
+		<th>Name</th>
+		<th>NetworkId</th>
+		<th>NodeId</th>
+		<th>Version</th>
+	</tr>
+	{% for bridge in bridges %}
+	<tr>
+		<td>{{ bridge.name }}</td>
+		<td>{{ bridge.NETWORKID }}</td>
+		<td>{{ bridge.NODEID }}</td>
+		<td>{{ bridge.VERSION }}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+<table class="table table-condensed table-bordered">
+	Sensors
 	<tr>
 		<th>Name</th>
 		<th>Bridge</th>

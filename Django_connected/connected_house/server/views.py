@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
 
-from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms
+from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms
 from website.models import User, Sensor, Data, Version, Bridge
 
 # Create your views here.
@@ -164,6 +164,7 @@ def newsensors(request):
     context.update({"user": email})
     if request.method == 'POST':
         form = SensorForms(request, data=request.POST)
+        form2 = BridgeForms(request, data=request.POST)
             
         is_valid = form.is_valid()
 
@@ -179,7 +180,30 @@ def newsensors(request):
             return redirect('sensors')
     else:
         form = SensorForms()
+        form2 = BridgeForms()
     form.fields['bridge'].queryset = Bridge.objects.filter(user=user)
+    context['form'] = form
+    context['form2'] = form2
+    return render(request,'templates/new_sensors.html', context)
+
+def newbridge(request):
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    if request.method == 'POST':
+        form = BridgeForms(request, data=request.POST)
+            
+        is_valid = form.is_valid()
+
+        if is_valid:
+            name = form.cleaned_data['name']
+            networkid = form.cleaned_data['NETWORKID']
+            nodeid = form.cleaned_data['NODEID']
+            version = form.cleaned_data['VERSION']
+            bridge = Bridge(name=name, user=user, NETWORKID=networkid, NODEID=nodeid, VERSION=version)
+            bridge.save()
+            return redirect('sensors')
+    else:
+        form = SensorForms()
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
@@ -189,7 +213,7 @@ def sensors(request):
     user = User.objects.get(email=email)
     context.update({"user": email})
     context.update({"sensors": Sensor.objects.all().filter(user=user)})
-    print Sensor.objects.filter(user=user)
+    context.update({"bridges": Bridge.objects.all().filter(user=user)})
     return render(request,'templates/sensors.html', context)
 
 def getID(identification):

@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^generateapi/$', views.generateapi, name='generateapi'),
     url(r'^mysensors/$', views.sensors, name='sensors'),
     url(r'^mysensors/new/$', views.newsensors, name='newsensors'),
+    url(r'^mybridge/new/$', views.newbridge, name='newbridge'),
     url(r'^postdata/$', views.post_data, name='post_data'),
     url(r'^updateme/$', views.post_Version_Bridge, name='post_Version_Bridge'),
     url(r'^updateprobes/$', views.post_Version_Probes, name='post_Version_Probes'),

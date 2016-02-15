@@ -90,3 +90,15 @@ class SensorForms(forms.ModelForm):
 
     def clean(self):
         return self.cleaned_data
+
+class BridgeForms(forms.ModelForm):
+    
+    class Meta:
+        model = Sensor
+        fields = ('name', 'NETWORKID', 'NODEID', 'VERSION')
+
+    def __init__(self, request=None, *args, **kwargs):
+        super(BridgeForms, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        return self.cleaned_data
