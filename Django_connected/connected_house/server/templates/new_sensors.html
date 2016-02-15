@@ -1,0 +1,20 @@
+{% extends "templates/container.html" %}
+
+{% block content %}
+
+</br></br></br>
+<h3>Add a new Bridge</h3> 
+<form action="/mybridge/new/" method="post">
+{% csrf_token %}
+{{ form2.as_ul }}
+<input type="submit" value="Add the Bridge" class="btn btn-lg btn-custom">
+</form>
+</br></br>
+<h3>Add a new Sensor</h3> 
+<form action="." method="post">
+{% csrf_token %}
+{{ form.as_ul }}
+<input type="submit" value="Add the Sensor" class="btn btn-lg btn-custom">
+</form>
+
+{% endblock content %}
