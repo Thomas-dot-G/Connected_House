@@ -4,7 +4,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import redirect
 from  django.contrib.auth.hashers import check_password, make_password
 
-from .forms import SignInForm, SignUpForm, EditAccountForm
+from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms
 from website.models import User
 
 # Create your views here.
@@ -154,3 +154,28 @@ def myaccount_edit(request):
         form = EditAccountForm(initial=data)
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
+
+def newsensors(request):
+    context = {"page":"newsensors"}
+    context.update({"user": check_auth(request)})
+    if request.method == 'POST':
+        form = SensorForms(request, data=request.POST)
+            
+        is_valid = form.is_valid()
+
+        if is_valid:
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            password2 = form.cleaned_data['password2']
+            timezone = form.cleaned_data['timezone']
+            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone)
+            user.save()
+            return login(request, user)
+    else:
+        form = SensorForms()
+    context['form'] = form
+    return render(request,'templates/new_sensors.html', context)
+
+def sensors(request):
+    return null

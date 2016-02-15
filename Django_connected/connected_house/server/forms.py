@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 
-from website.models import User
+from website.models import User, Sensor, Bridge
 
 class SignInForm(forms.ModelForm):
 
@@ -77,3 +77,19 @@ class EditAccountForm(forms.ModelForm):
 
     def clean(self):
         self.cleaned_data
+
+
+class SensorForms(forms.ModelForm):
+
+    identification = forms.CharField(label='ID')
+    
+    class Meta:
+        model = Sensor
+        fields = ('name', 'user', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
+
+    def __init__(self, request=None, *args, **kwargs):
+        super(SensorForms, self).__init__(*args, **kwargs)
+
+
+    def clean(self):
+        return self.cleaned_data
