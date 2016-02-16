@@ -1,0 +1,38 @@
+{% extends "templates/container.html" %}
+
+{% block content %}
+<div class="col-md-4 col-md-offset-4">
+
+<HTML>
+<HEAD>
+  <TITLE>My Channels</TITLE>
+</HEAD>
+
+<h4 class="breadcrumb">My Channels</h4>
+
+  <div class="col-pad">
+
+{% if channels %}
+<table class="table table-condensed">
+ <tr>
+    <th>Channel Name</th>
+    <th>API_KEY</th>
+    <th>Link</th>
+  </tr>
+{% for c in channels %}
+ <tr>
+ 	<th>{{c.name}}</th>
+ 	<th>{{c.API_KEY}}</th>
+ 	<th>link</th>
+ </tr>
+ {% endfor %}
+ {% else %}
+ <label> you don't have any channels, would you like to 
+<a href="/mychannels/new">create</a>
+ one ? </label>
+ {% endif %}
+  
+</table>
+
+  </div>
+{% endblock content %}
