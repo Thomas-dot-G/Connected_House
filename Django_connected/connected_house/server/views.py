@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
-from django.db.models import Avg
+from django.db.models import Avg, Max, Min
 
 from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms
 from website.models import User, Sensor, Data, Version, Bridge, Channel
@@ -190,6 +190,27 @@ def getCurrentElec(request):
             sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
             value = Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value
             response = HttpResponse(value, content_type="text/plain")
+
+        return response
+
+@csrf_exempt
+def getElec(request):
+    if request.method == 'GET':
+        user = check_auth(request)
+        #TODO to change to delete to get the real one
+        request.session['channel'] = Channel.objects.all().first().API_KEY
+        api = request.session.get('channel', None)
+        channel = Channel.objects.all().filter(API_KEY=api)
+        if channel:
+            sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
+            maximum = Data.objects.all().filter(sensor__in=sensors).aggregate(Max('value'))['value__max']
+            minimum = Data.objects.all().filter(sensor__in=sensors).aggregate(Min('value'))['value__min']
+            data = Data.objects.all().filter(sensor__in=sensors)
+            array = []
+            for d in data:
+                array.append([d.date.toordinal(), d.value, maximum, minimum, 8])
+            print array
+            response = HttpResponse([array], content_type="text/plain")
 
         return response
 

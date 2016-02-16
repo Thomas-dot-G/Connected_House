@@ -73,9 +73,14 @@ window.setInterval(function(){
     $( ".globalwaiting" ).show();
     $( ".globalready" ).hide();
     var ready = false;
-    $.getJSON('http://kgb.emn.fr:8001/util/my-from-sql.php?channel_id=4&field=field6&callback=?', function(data) {
+    //$.getJSON('http://kgb.emn.fr:8001/util/my-from-sql.php?channel_id=4&field=field6&callback=?', function(data) {
+    $.getJSON('http://127.0.0.1:8000/energy/electricity/global/', function(data) {
+
               // create the chart
               console.log(data[0]);
+              console.log(data[1]);
+              console.log(data[2]);
+              console.log(data[3]);
               var myDate="30-01-2015";
               myDate=myDate.split("-");
               var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];

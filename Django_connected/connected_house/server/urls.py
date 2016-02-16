@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^energy/electricity/$', views.electricity, name='electricity'),
     url(r'^energy/electricity/avg/$', views.getAvgElec, name='getAvgElec'),
     url(r'^energy/electricity/current/$', views.getCurrentElec, name='getCurrentElec'),
+    url(r'^energy/electricity/global/$', views.getElec, name='getElec'),
     url(r'^energy/water/$', views.water, name='water'),
     url(r'^energy/photovoltaic/$', views.photovoltaic, name='photovoltaic'),
     url(r'^weather/$', views.weather, name='weather'),
