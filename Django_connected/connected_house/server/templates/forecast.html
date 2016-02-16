@@ -11,15 +11,19 @@
     <!-- /.col-lg-12 -->
 </div>
 <!-- /.row -->
+<div class="CityName"></div>
 <div class="row">
 	<div id="errors-message" class="error">
-        <i class="fa fa-exclamation-triangle"></i><strong class="cityname"> {{errorCity}}</strong> does not exist...
+        <i class="fa fa-exclamation-triangle"></i><strong class="city_name"> {{errorCity}}</strong> does not exist...
     </div>
-	<form onclick="submitCity()">
-		<div id="input-city" class="input-group">
+    <form id="input-city" class="form-inline">
+		<div class="form-group input-group">
 			<span class="input-group-addon" id="basic-addon1"><i class="fa fa-map-marker"></i></span>
-		  	<input type="text" class="form-control" placeholder="Enter a city" aria-describedby="basic-addon1" id="city">
+			<input type="text" class="form-control" placeholder="Enter a city" aria-describedby="basic-addon1" id="city">
 		</div>
+  		<div class="form-group">
+    		<a onclick="submitCity()" class="btn btn-primary">Search</a>
+  		</div>
 	</form>
 	<div class="notready loading">
         <!--<img src="images/ajax-loader.gif" alt="loading">-->
