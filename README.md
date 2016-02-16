@@ -15,5 +15,3 @@ The probes will run thanks to Moteinos. But as the code is usable for Arduino, y
 **Thomas Garesse**
 
 **Marc Lamazouère**
-
-**Julien Perrin**

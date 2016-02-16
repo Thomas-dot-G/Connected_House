@@ -3,8 +3,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 
+from website.models import User, Data, Sensor, Bridge, Channel
 
-from website.models import User,Channel
 
 class SignInForm(forms.ModelForm):
 
@@ -80,12 +80,40 @@ class EditAccountForm(forms.ModelForm):
         self.cleaned_data
 
 class NewChannelForm(forms.ModelForm):
-
+    chosensensors = forms.ModelMultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple, queryset=Sensor.objects.all())
     class Meta:
         model = Channel
-        fields = ('name','API_KEY','user','sensors')
+        fields = ('name',)
 
     def __init__(self, request=None, *args, **kwargs):
         super(NewChannelForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs.update({'required': 'required'})
+    def clean(self):
+        return self.cleaned_data        
+
+
+
+class SensorForms(forms.ModelForm):
+    
+    class Meta:
+        model = Sensor
+        fields = ('name', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
+
+    def __init__(self, request=None, *args, **kwargs):
+        super(SensorForms, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        return self.cleaned_data
+
+class BridgeForms(forms.ModelForm):
+    
+    class Meta:
+        model = Sensor
+        fields = ('name', 'NETWORKID', 'NODEID', 'VERSION')
+
+    def __init__(self, request=None, *args, **kwargs):
+        super(BridgeForms, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        return self.cleaned_data
 

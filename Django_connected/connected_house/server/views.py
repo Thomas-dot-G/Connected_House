@@ -2,11 +2,17 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import redirect
-from  django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import check_password, make_password
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.utils.encoding import smart_str
+from django.db.models import Avg
 
-from .forms import SignInForm, SignUpForm, EditAccountForm, NewChannelForm
-from website.models import User,Channel,Sensor
+
+from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms, NewChannelForm
+from website.models import User, Sensor, Data, Version, Bridge, Channel
 import hashlib, random
+
 
 # Create your views here.
 
@@ -54,7 +60,6 @@ def signin(request):
             try:
                 user = User.objects.get(email=email)
             except Exception as e:
-                print 'HGGGGGGGGGGGG'
                 context['login_form'] = form
                 context.update({"error": True})
                 return render(request,'templates/signin.html', context)
@@ -101,8 +106,8 @@ def myaccount(request):
         context.update({
         'email': email,
         'name': user.name,
-        'timezone': user.timezone#,
-        #'api': user.api
+        'timezone': user.timezone,
+        'api': user.API_KEY
         })
         # We do not put user to avoid placing the password in the template
         # even if it is hashed
@@ -170,22 +175,202 @@ def newchannel(request):
     email = check_auth(request)
     user = User.objects.get(email=email)
     context.update({"user":email})
-    sensors = Sensor.objects.filter(user=user)
-    context.update({"sensors":sensors})
-    form = NewChannelForm(request, data=request.POST)
+
     if request.method == 'POST':
-
+        form = NewChannelForm(request, data=request.POST)    
             
-            is_valid = form.is_valid()
+        is_valid = form.is_valid()
+        print(is_valid)
+        if is_valid:
 
-            if is_valid:
-                name = form.cleaned_data['name']
-                sensors = form.cleaned_data['sensors']
-
-                channel = Channel(name=name, API_KEY=hashlib.sha224( str(random.getrandbits(256)) ).hexdigest(), user=user, sensors=sensors )
-                channel.save()
-                return login(request, user)
+            name = form.cleaned_data['name']
+            chosensensors = form.cleaned_data['chosensensors']
+            print(chosensensors)
+            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).digest(), user=user)
+            for s in chosensensors:
+                channel.sensors.add(s)
+            channel.save()
+            return login(request, user)
     else:
         form = NewChannelForm()
     context['NewChannelForm'] = form
+    form.fields['chosensensors'].queryset = Sensor.objects.filter(user=user)
     return render(request,'templates/newchannel.html', context)
+
+def electricity(request):
+    context = {"page":"electricity"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    context.update({"currentElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').first().value})
+    context.update({"averageElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').aggregate(Avg('value'))['value__avg']})
+    context.update({"since": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').last().date})
+    return render(request,'templates/electricity.html', context)
+
+def water(request):
+    context = {"page":"water"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/water.html', context)
+
+def photovoltaic(request):
+    context = {"page":"photovoltaic"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/photovoltaic.html', context)
+
+def weather(request):
+    context = {"page":"weather"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/weather.html', context)
+
+def forecast(request):
+    context = {"page":"forecast"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/forecast.html', context)
+
+def advanced(request):
+    context = {"page":"advanced"}
+    email = check_auth(request)
+    context.update({"user": email})
+    user = User.objects.get(email=email)
+    return render(request,'templates/advanced.html', context)
+
+def newsensors(request):
+    context = {"page":"newsensors"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user": email})
+    if request.method == 'POST':
+        form = SensorForms(request, data=request.POST)
+        form2 = BridgeForms(request, data=request.POST)
+            
+        is_valid = form.is_valid()
+
+        if is_valid:
+            name = form.cleaned_data['name']
+            bridge = form.cleaned_data['bridge']
+            networkid = form.cleaned_data['NETWORKID']
+            nodeid = form.cleaned_data['NODEID']
+            Type = form.cleaned_data['TYPE']
+            version = form.cleaned_data['VERSION']
+            sensor = Sensor(name=name, user=user, bridge=bridge, NETWORKID=networkid, NODEID=nodeid, TYPE=Type, VERSION=version)
+            sensor.save()
+            return redirect('sensors')
+    else:
+        form = SensorForms()
+        form2 = BridgeForms()
+    form.fields['bridge'].queryset = Bridge.objects.filter(user=user)
+    context['form'] = form
+    context['form2'] = form2
+    return render(request,'templates/new_sensors.html', context)
+
+def newbridge(request):
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    if request.method == 'POST':
+        form = BridgeForms(request, data=request.POST)
+            
+        is_valid = form.is_valid()
+
+        if is_valid:
+            name = form.cleaned_data['name']
+            networkid = form.cleaned_data['NETWORKID']
+            nodeid = form.cleaned_data['NODEID']
+            version = form.cleaned_data['VERSION']
+            bridge = Bridge(name=name, user=user, NETWORKID=networkid, NODEID=nodeid, VERSION=version)
+            bridge.save()
+            return redirect('sensors')
+    else:
+        form = SensorForms()
+    context['form'] = form
+    return render(request,'templates/new_sensors.html', context)
+
+def sensors(request):
+    context = {"page":"newsensors"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user": email})
+    context.update({"sensors": Sensor.objects.all().filter(user=user)})
+    context.update({"bridges": Bridge.objects.all().filter(user=user)})
+    return render(request,'templates/sensors.html', context)
+
+def getID(identification):
+    ID = identification[1:identification.index('-')]
+    remaining = identification[identification.index('-')+1:]
+    NETWORDID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    GATEWAY = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    NODEID = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    TYPE = remaining[:remaining.index('-')]
+    remaining = remaining[remaining.index('-')+1:]
+    VERSION = remaining[:-1]
+    return [ID, NETWORDID, GATEWAY, NODEID, TYPE, VERSION]
+
+@csrf_exempt
+def post_data(request):
+    if request.method == 'POST':
+        value = request.POST['data']
+        print request.POST['id']
+        identification = getID(request.POST['id'])
+        sensor = Sensor.objects.get(name=identification[0])
+        if sensor.NETWORKID is not identification[1] or sensor.bridge is not identification[2] or sensor.NODEID is not identification[3] or sensor.TYPE is not identification[4] or sensor.VERSION is not identification[5]:
+            sensor.NETWORKID = identification[1]
+            sensor.bridge = Bridge.objects.get(name=identification[2])
+            sensor.NODEID = identification[3]
+            sensor.TYPE = identification[4]
+            sensor.VERSION = identification[5]
+            sensor.save()
+        data = Data(sensor=Sensor.objects.get(name=identification[0]), value=value)
+        data.save()
+    else:
+        return redirect('/')
+    return HttpResponse("OK")
+
+@csrf_exempt
+def post_Version_Bridge(request):
+    if request.method == 'POST':
+        identification = getID(request.POST['id'])
+        bridge = Bridge.objects.get(name=identification[0])
+
+        if bridge.VERSION is not identification[5] or bridge.NODEID is not identification[3] or bridge.VERSION is not identification[5]:
+            bridge.NETWORKID = identification[1]
+            bridge.NODEID = identification[3]
+            bridge.VERSION = identification[5]
+            bridge.save()
+
+        if bridge.VERSION is not Version.objects.get(TYPE="Bridge"):
+            response = HttpResponse(content_type='application/force-download')
+            response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+            response['X-Sendfile'] = smart_str('versions/bridge.hex')
+            return response
+    else:
+        return redirect('/')
+    return HttpResponse("OK")
+
+@csrf_exempt
+def post_Version_Probes(request):
+    if request.method == 'POST':
+        identification = getID(request.POST['id'])
+        bridge = Bridge.objects.get(name=identification[0])
+        probes = Sensor.objects.filter(bridge=bridge)
+
+        for p in probes:
+            print Version.objects.get(TYPE=p.TYPE)
+            if p.VERSION is not Version.objects.get(TYPE=p.TYPE):
+                response = HttpResponse(content_type='application/force-download')
+                response['HTTP_ACCEPT_LANGUAGE'] =  p.NODEID
+                response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+                response['X-Sendfile'] = smart_str('versions/%s.hex' % p.TYPE)
+                return response
+    else:
+        return redirect('/')
+    return HttpResponse("OK")

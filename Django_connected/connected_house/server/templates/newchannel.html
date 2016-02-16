@@ -6,107 +6,39 @@
 <div>
 
   <div class="row">
-  </br></br>
-    <div id="form-newchannel" class="panel-body">
-    <form action="." method="post">
-      {% csrf_token %} 
-      <div class="form-group">
-        <label class="col-sm-4 col-xs-3 control-label">Channel Name</label>
-        <div class="col-sm-8 col-xs-6">{{ NewChannelForm.name }}</div>
-        <br>
+    </br></br>
+     <div id="form-newchannel" class="panel-body">
+       <form action="." method="post">
+        {% csrf_token %} 
+        <div class="form-group">
+          <label class="col-sm-4 col-xs-3 control-label">Channel Name</label>
+          <div class="col-sm-8 col-xs-6">{{ NewChannelForm.name }}</div>
+          <br>
 
-        <div class="row">
-  <div class="col-md-2">
-	<div>
-		<label>My Sensors</label>
-	</div>
-	<div>
- 	 	<SELECT NAME="possible" id="possible" SIZE="10" MULTIPLE style= "width:100%;">
- 	 			{% for s in sensors %}
-   	 		<OPTION VALUE="{{s.name}}">{{s.name}}</OPTION>
-   	 			{% endfor %}
- 	 	
- 	 </SELECT>
-	</div>
-	<div>
-		<INPUT TYPE="BUTTON" VALUE="Add to wishlist"
-      		 ONCLICK="putObject();">
-	</div>
-</div>
-  <div class="col-md-2">
-<div>
-		<label>New channel sensors</label>
-	</div>
-	<div>
-  		<SELECT NAME="wishlist" id="wishlist"  SIZE="10" MULTIPLE style= "width:100%;">
- 		  	
- 		 </SELECT>
-	</div>
-       <div class="col-sm-8 col-xs-6">{{ NewChannelForm.sensors }}</div>
-       <br
-	<div>
-		<INPUT TYPE="BUTTON" VALUE="Remove from wishlist" 
-      		 ONCLICK="removeObject();">
-	</div>
+            <div class="row">
+             <div class="col-md-2">
+	              <div>
+	              <label>My Sensors</label>
+	              </div>
 
-	<div class="btn-group" role="group" aria-label="...">
-  		<input type="submit" value="Create Channel" class="btn btn-lg btn-custom btn-block">
-	</div>
-</div>
-        <label class="col-sm-4 control-label"></label>
-      </div>
-    <form>
-    </div>
+                <div class="col-sm-8 col-xs-6">{{ NewChannelForm.chosensensors }}</div>
+                <br>
+	               
+
+	                 <div class="btn-group" role="group" aria-label="...">
+
+  		              <input type="submit" value="Create Channel" class="btn btn-lg btn-custom btn-block">
+     
+	                 </div>
+            </div>
+            <label class="col-sm-4 control-label"></label>
+            </div>
+        </div>
+       </form>
   </div>
 </div>
 <script type="text/javascript">
 
-
-  function putObject()
-{
-	var fromObj = document.getElementById("possible");
-	var toObj = document.getElementById("wishlist");
-   for (var selIndex = fromObj.length - 1; selIndex >= 0; selIndex--)
-   {
-      // Is this option selected?
-      if (fromObj.options[selIndex].selected)
-      {
-         // Get the text and value for this option.
-         var newText  = fromObj.options[selIndex].text;
-         var newValue = fromObj.options[selIndex].value;
- 
-         // Create a new option, and add to the other select box.
-         var newOption = new Option(newText, newValue)
-         toObj[toObj.length] = newOption;
-
-         // Delete the option in the first select box.
-         fromObj[selIndex] = null;
-      }
-   }
-}
-
-function removeObject()
-{
-	var fromObj = document.getElementById("wishlist");
-	var toObj = document.getElementById("possible");
-   for (var selIndex = fromObj.length - 1; selIndex >= 0; selIndex--)
-   {
-      // Is this option selected?
-      if (fromObj.options[selIndex].selected)
-      {
-         // Get the text and value for this option.
-         var newText  = fromObj.options[selIndex].text;
-         var newValue = fromObj.options[selIndex].value;
- 
-         // Create a new option, and add to the other select box.
-         var newOption = new Option(newText, newValue)
-         toObj[toObj.length] = newOption;
-
-         // Delete the option in the first select box.
-         fromObj[selIndex] = null;
-      }
-   }
-}
 </script>
 
 {% endblock content %}
