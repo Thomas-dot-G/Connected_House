@@ -39,6 +39,12 @@ urlpatterns = [
     url(r'^postdata/$', views.post_data, name='post_data'),
     url(r'^updateme/$', views.post_Version_Bridge, name='post_Version_Bridge'),
     url(r'^updateprobes/$', views.post_Version_Probes, name='post_Version_Probes'),
+    url(r'^energy/electricity/$', views.electricity, name='electricity'),
+    url(r'^energy/water/$', views.water, name='water'),
+    url(r'^energy/photovoltaic/$', views.photovoltaic, name='photovoltaic'),
+    url(r'^weather/$', views.weather, name='weather'),
+    url(r'^forecast/$', views.forecast, name='forecast'),
+    url(r'^advanced/$', views.advanced, name='advanced'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

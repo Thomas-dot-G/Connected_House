@@ -1,0 +1,76 @@
+{% extends "templates/base_connected.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Photovoltaic panels</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+      <div ng-hide="loaded">
+        <div class="row">
+          <div class="col-lg-6">
+            <h4>Start date</h4>
+          </div>
+          <div class="col-lg-6">
+            <h4>End date</h4>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+              <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="startDt" is-open="datepickers.startDt" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="open($event, 'startDt')"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </p>
+          </div>
+          <div class="col-md-6">
+              <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="endDt" is-open="datepickers.endDt" min-date="minDate" max-date="maxDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default" ng-click="open($event, 'endDt')"><i class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </p>
+          </div>
+        </div> 
+
+        <div class="radio inverters">
+          <label>
+            <input type="radio" name="inverter" value="1" ng-model="inverter.number" checked>
+            Inverter 1
+          </label>
+          <label>
+            <input type="radio" name="inverter" value="2" ng-model="inverter.number">
+            Inverter 2
+          </label>
+        </div>
+        <div class="inverters">
+          <button type="button" class="btn btn-sm btn-custom" ng-click="getPhotoData(startDt, endDt)" >Submit</button>
+        </div>
+
+        
+        <br>
+        <br>
+        <div>
+          <p id="errors-message" ng-show="errors"><i class="fa fa-exclamation-triangle"></i><strong>{{message}}</strong></p>
+        </div>
+      </div>
+
+      <div ng-show="loaded">
+        <button type="button" class="btn btn-sm btn-custom" ng-click="back()" >Back</button></br>
+        <div ng-hide="scatter" class="loading">
+          <i class="fa fa-spinner fa-spin"></i>
+          Loading chart...
+        </div>
+        <div ng-show="scatter" id="container">
+          
+        </div>
+      </div>
+    </div>
+</div>
+<!-- /.row -->
+{% endblock content %}
