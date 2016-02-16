@@ -166,4 +166,3 @@ window.setInterval(function(){
               $( ".globalready" ).show();
         });
   };
-  
