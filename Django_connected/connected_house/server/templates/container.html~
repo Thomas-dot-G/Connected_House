@@ -53,7 +53,7 @@
 		              <ul class="nav navbar-nav navbar-right">
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                        Channels
+                        channels
                     </a>
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="/mychannels">My Channels</a></li>

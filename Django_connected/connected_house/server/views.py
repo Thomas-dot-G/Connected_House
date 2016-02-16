@@ -4,8 +4,9 @@ from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import redirect
 from  django.contrib.auth.hashers import check_password, make_password
 
-from .forms import SignInForm, SignUpForm, EditAccountForm
-from website.models import User
+from .forms import SignInForm, SignUpForm, EditAccountForm, NewChannelForm
+from website.models import User,Channel,Sensor
+import hashlib, random
 
 # Create your views here.
 
@@ -45,7 +46,6 @@ def signin(request):
         form = SignInForm(request, data=request.POST)
             
         is_valid = form.is_valid()
-        print is_valid
         if is_valid:
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -154,3 +154,38 @@ def myaccount_edit(request):
         form = EditAccountForm(initial=data)
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
+
+def mychannels(request):
+    context = {"page":"mychannels"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user":email})
+    channels = Channel.objects.filter(user=user)
+    context.update({"channels":channels})
+    return render(request,'templates/mychannels.html', context)
+    return render(request,'templates/signin.html', context)
+
+def newchannel(request):
+    context = {"page":"newchannel"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user":email})
+    sensors = Sensor.objects.filter(user=user)
+    context.update({"sensors":sensors})
+    form = NewChannelForm(request, data=request.POST)
+    if request.method == 'POST':
+
+            
+            is_valid = form.is_valid()
+
+            if is_valid:
+                name = form.cleaned_data['name']
+                sensors = form.cleaned_data['sensors']
+
+                channel = Channel(name=name, API_KEY=hashlib.sha224( str(random.getrandbits(256)) ).hexdigest(), user=user, sensors=sensors )
+                channel.save()
+                return login(request, user)
+    else:
+        form = NewChannelForm()
+    context['NewChannelForm'] = form
+    return render(request,'templates/newchannel.html', context)

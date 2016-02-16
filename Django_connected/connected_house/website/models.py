@@ -37,6 +37,9 @@ class Channel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sensors = models.ManyToManyField(Sensor)
 
+    def __unicode__(self):
+            return self.name
+
 class Data(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)
     value = models.IntegerField()
