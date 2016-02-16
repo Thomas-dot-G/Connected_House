@@ -1,60 +1,48 @@
+ $(document).ready(function () {
+    $( ".averageWaiting" ).hide();
+    $( ".currentWaiting" ).hide();
+    getGlobal();
+});
+
   function getAverage() {
     var xmlHttp = new XMLHttpRequest();
+    $( ".averageWaiting" ).show();
+    $( ".averageReady" ).hide();
     xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            console.log(xmlHttp.responseText);
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+          console.log(xmlHttp.responseText);
+          var jsonResponse = JSON.parse(xmlHttp.responseText);
+          $( ".averageReady" ).show();
+          $( ".averageWaiting" ).hide();
+          $( ".averageReady" ).replaceWith( "<h3 class='averageReady'>"+(jsonResponse["data"])+" kWh <small> Since " +(jsonResponse["since"])+ "</small> </h3>" );
+        }
     }
-    xmlHttp.open("GET", 'http://kgb.emn.fr:8001/channels/4/field/6.json?key=94BREBU27ZFTXJ38&results=22000', true); // true for asynchronous 
+    xmlHttp.open("GET", 'http://127.0.0.1:8000/energy/electricity/avg', true); // true for asynchronous 
     xmlHttp.send(null);
 };
-  //       var since = new Date(feeds[0].created_at).format("dd/mm/yyyy");
-  //       var averageElectricity = (sum*220*24/(n*1000)).toFixed(3);
-  //       var averageReady = true;
-  //     });
-  // };
-  $scope.getAverage();
-  var intervalAverage = $interval($scope.getAverage, 30000);
+
+  function getCurrent() {
+    var xmlHttp = new XMLHttpRequest();
+    $( ".currentWaiting" ).show();
+    $( ".currentReady" ).hide();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+          $( ".currentReady" ).show();
+          $( ".currentWaiting" ).hide();
+          $( ".currentReady" ).replaceWith( "<h3 class='currentReady'>"+xmlHttp.responseText+" W</h3>" );
+        }
+    }
+    xmlHttp.open("GET", 'http://127.0.0.1:8000/energy/electricity/current', true); // true for asynchronous 
+    xmlHttp.send(null);
+};
   
-  $scope.getCurrent = function() {
-    $scope.currentReady = false;
-    if ($scope.currentElectricity === undefined) {
-      $http.get('http://kgb.emn.fr:8001/channels/4/field/6.json?key=94BREBU27ZFTXJ38&results=20')
-      .then(function(result){
-        var i = 0;
-        var feed = result.data.feeds;
-        var n = feed.length;
-        do {
-          var value = feed[n - 1 - i].field6;
-          if (value !== null) {
-            $scope.currentElectricity = parseFloat(value).toFixed(1);
-            $scope.currentReady = true;
-          }
-          else
-            i++;
-        }
-        while ($scope.currentElectricity === undefined && (n - 1 - i) >= 0);
-      });
-    }
-    else {
-      $http.get('http://kgb.emn.fr:8001/channels/4/field/6.json?key=94BREBU27ZFTXJ38&results=1')
-      .then(function(result){
-        var feed = result.data.feeds[0];
-        var value = feed.field6;
-        if(value !== null) { 
-          $scope.currentElectricity = parseFloat(value).toFixed(1);
-        }
-        $scope.currentReady = true;
-      });
-    }
-  };
+  
 
-  $scope.getCurrent();
-  var intervalCurrent = $interval($scope.getCurrent, 30000);
+window.setInterval(function(){
+   getCurrent();
+   getAverage();
+}, 50000);
 
-  $scope.$on('$destroy', function () { 
-    $interval.cancel(intervalCurrent); 
-    $interval.cancel(intervalAverage); 
-  });
 
 
 
@@ -82,11 +70,12 @@
   }  
 
   function getGlobal() {
+    $( ".globalwaiting" ).show();
+    $( ".globalready" ).hide();
     var ready = false;
     $.getJSON('http://kgb.emn.fr:8001/util/my-from-sql.php?channel_id=4&field=field6&callback=?', function(data) {
-            $scope.$apply(function(){
-              $scope.ready = true;
               // create the chart
+              console.log(data[0]);
               var myDate="30-01-2015";
               myDate=myDate.split("-");
               var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];
@@ -168,8 +157,8 @@
               $('#container').highcharts().series[0].update({
                   type: 'candlestick'
               });
-              });
+              $( ".globalwaiting" ).hide();
+              $( ".globalready" ).show();
         });
   };
-  $scope.getGlobal();
   

@@ -30,11 +30,11 @@
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
-                <div class="loading" ng-hide="currentReady">
+                <div class="loading currentWaiting">
                     <!--<img src="images/ajax-loader.gif" alt="loading">-->
                     <i class="fa fa-spinner fa-spin"></i>
                 </div>
-                <h3 ng-show="currentReady">{{currentElectricity}} W</h3>
+                <h3 class="currentReady">{{currentElectricity}} W</h3>
             </div>
             <!-- /.panel-body -->
         </div>
@@ -48,11 +48,11 @@
             </div>
             <!-- /.panel-heading -->
             <div class="panel-body">
-                <div class="loading" ng-hide="averageReady">
+                <div class="loading averageWaiting">
                     <!--<img src="images/ajax-loader.gif" alt="loading">-->
                     <i class="fa fa-spinner fa-spin"></i>
                 </div>
-                <h3 ng-show="averageReady">{{averageElectricity}} kWh <small> Since {{since}} </small> </h3>
+                <h3 class="averageReady">{{averageElectricity}} kWh <small> Since {{since}} </small> </h3>
             </div>
             <!-- /.panel-body -->
         </div>
@@ -71,12 +71,12 @@
                     <div id="bd" class="clearfix">
                         
 
-                        <div ng-hide="ready" class="loading">
+                        <div class="globalwaiting loading">
                             <!--<img src="images/ajax-loader.gif" alt="loading">-->
                             <i class="fa fa-spinner fa-spin" title="Refresh"></i>
                             Loading chart...
                         </div>
-                        <div ng-show="ready" id="container">
+                        <div class="globalready" id="container">
                             
                         </div>
                     </div>
