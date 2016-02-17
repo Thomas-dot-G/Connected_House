@@ -6,8 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.utils.encoding import smart_str
-from django.db.models import Avg
-
+from django.db.models import Avg, Max, Min
 
 from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms, NewChannelForm
 from website.models import User, Sensor, Data, Version, Bridge, Channel
@@ -46,7 +45,12 @@ def check_auth(request):
     if not user_email:
         return redirect('/signin')
     else:
-        return user_email 
+        try:
+            user = User.objects.get(email=user_email)
+        except Exception as e:
+            request.session.flush()
+            return redirect('/signin')
+        return user 
 
 #show signin page
 def signin(request):
@@ -98,15 +102,15 @@ def signup(request):
 #show dashboard page
 def dashboard(request):
     context = {"page":"dashboard"}
-    context.update({"user": check_auth(request)})
+    context.update({"user": check_auth(request).email})
     return render(request,'templates/dashboard.html', context)
 
 #show my account page if user, else show signin page
 def myaccount(request):
-    context = {"page":"myaccount"}
-    email = check_auth(request)
-    context = {"user": email}
-    user = User.objects.get(email=email)
+    context = {"page":"myaccount"}    
+    user = check_auth(request)
+    context = {"user": user.email}
+
     if user:
         context.update({
         'email': email,
@@ -129,17 +133,15 @@ def generateapi(request):
 #deletes current user
 def myaccount_delete(request):
     # This page (the html one) should ask for the user password
-    email = check_auth(request)
-    user = User.objects.get(email=email)
+    user = check_auth(request)
     user.delete()
     return logout(request)
 
 #shows edit_account page
 def myaccount_edit(request):
     context = {"page":"account_edit"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user": email})
+    user = check_auth(request)
+    context.update({"user": user.email})
     data = {'name': user.name, 'timezone': user.timezone}
     if request.method == 'POST':
         form = EditAccountForm(request, data=request.POST)
@@ -168,7 +170,63 @@ def myaccount_edit(request):
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
 
+
 #shows my channels page if user, else signin page
+
+@csrf_exempt
+def getAvgElec(request):
+    if request.method == 'GET':
+        user = check_auth(request)
+        #TODO to change to delete to get the real one
+        request.session['channel'] = Channel.objects.all().first().API_KEY
+        api = request.session.get('channel', None)
+        channel = Channel.objects.all().filter(API_KEY=api)
+        if channel:
+            sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
+            since = Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date
+            data = Data.objects.all().filter(sensor__in=sensors).aggregate(Avg('value'))['value__avg']
+            body = '{"data": "%.2f", "since": "%s"}' %(data, since)
+            response = HttpResponse(body, content_type="text/plain")
+
+        return response
+
+@csrf_exempt
+def getCurrentElec(request):
+    if request.method == 'GET':
+        user = check_auth(request)
+        #TODO to change to delete to get the real one
+        request.session['channel'] = Channel.objects.all().first().API_KEY
+        api = request.session.get('channel', None)
+        channel = Channel.objects.all().filter(API_KEY=api)
+        if channel:
+            sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
+            value = Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value
+            response = HttpResponse(value, content_type="text/plain")
+
+        return response
+
+@csrf_exempt
+def getElec(request):
+    if request.method == 'GET':
+        user = check_auth(request)
+        #TODO to change to delete to get the real one
+        request.session['channel'] = Channel.objects.all().first().API_KEY
+        api = request.session.get('channel', None)
+        channel = Channel.objects.all().filter(API_KEY=api)
+        if channel:
+            sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
+            maximum = Data.objects.all().filter(sensor__in=sensors).aggregate(Max('value'))['value__max']
+            minimum = Data.objects.all().filter(sensor__in=sensors).aggregate(Min('value'))['value__min']
+            data = Data.objects.all().filter(sensor__in=sensors)
+            array = []
+            for d in data:
+                array.append([d.date.toordinal(), d.value, maximum, minimum, 8])
+            print array
+            response = HttpResponse([array], content_type="text/plain")
+
+        return response
+
+
 def mychannels(request):
     context = {"page":"mychannels"}
     email = check_auth(request)
@@ -211,60 +269,57 @@ def newchannel(request):
 #shows electricity page
 def electricity(request):
     context = {"page":"electricity"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
-    context.update({"currentElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').first().value})
-    context.update({"averageElectricity": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').aggregate(Avg('value'))['value__avg']})
-    context.update({"since": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').last().date})
+    user = check_auth(request)
+    api = request.session.get('channel', None)
+    channel = Channel.objects.all().filter(API_KEY=api)
+    context.update({"user": user.email})
+    if channel:
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
+        context.update({"currentElectricity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
+        context.update({"averageElectricity": Data.objects.all().filter(sensor__in=sensors).aggregate(Avg('value'))['value__avg']})
+        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/electricity.html', context)
 
 #shows water page
 def water(request):
     context = {"page":"water"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
+    user = check_auth(request)
+    context.update({"user": user.email})
     return render(request,'templates/water.html', context)
 
 #shows photovoltaic page
 def photovoltaic(request):
     context = {"page":"photovoltaic"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
+    user = check_auth(request)
+    context.update({"user": user.email})
     return render(request,'templates/photovoltaic.html', context)
 
 #shows weather page
 def weather(request):
     context = {"page":"weather"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
+    user = check_auth(request)
+    context.update({"user": user.email})
     return render(request,'templates/weather.html', context)
 
 #shows forecast page
 def forecast(request):
     context = {"page":"forecast"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
+    user = check_auth(request)
+    context.update({"user": user.email})
     return render(request,'templates/forecast.html', context)
 
 #shows advanced page
 def advanced(request):
     context = {"page":"advanced"}
-    email = check_auth(request)
-    context.update({"user": email})
-    user = User.objects.get(email=email)
+    user = check_auth(request)
+    context.update({"user": user.email})
     return render(request,'templates/advanced.html', context)
 
 #shows new sensor page page
 def newsensors(request):
     context = {"page":"newsensors"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user": email})
+    user = check_auth(request)
+    context.update({"user": user.email})
     if request.method == 'POST':
         form = SensorForms(request, data=request.POST)
         form2 = BridgeForms(request, data=request.POST)
@@ -291,8 +346,9 @@ def newsensors(request):
 
 #shows newbridge page
 def newbridge(request):
-    email = check_auth(request)
-    user = User.objects.get(email=email)
+    context = {"page":"newbridge"}
+    user = check_auth(request)
+    context.update({"user": user.email})
     if request.method == 'POST':
         form = BridgeForms(request, data=request.POST)
             
@@ -314,9 +370,8 @@ def newbridge(request):
 #
 def sensors(request):
     context = {"page":"newsensors"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user": email})
+    user = check_auth(request)
+    context.update({"user": user.email})
     context.update({"sensors": Sensor.objects.all().filter(user=user)})
     context.update({"bridges": Bridge.objects.all().filter(user=user)})
     return render(request,'templates/sensors.html', context)

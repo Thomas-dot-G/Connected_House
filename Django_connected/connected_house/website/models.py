@@ -46,7 +46,7 @@ class Channel(models.Model):
     name = models.CharField(max_length=200)
     API_KEY = models.CharField(max_length=16, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    sensors = models.ManyToManyField(Sensor)
+    sensors = models.ManyToManyField(Sensor, related_name='channels')
 
     def __unicode__(self):
 
