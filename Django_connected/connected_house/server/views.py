@@ -15,7 +15,7 @@ import hashlib, random
 
 
 # Create your views here.
-
+#show index page
 def index(request):
     context = {"page":"index"}
     user_email = request.session.get('user', None)
@@ -30,10 +30,12 @@ def index(request):
 
     return render(request,'templates/index.html', context)
 
+#show login page
 def login(request, user):
     request.session['user'] = user.email
     return redirect('/dashboard/')
 
+#show logout page
 def logout(request):
     request.session.flush()
     return redirect('/')
@@ -46,6 +48,7 @@ def check_auth(request):
     else:
         return user_email 
 
+#show signin page
 def signin(request):
     context = {"page":"signin", "loginremember": request.session.get('loginremember')}
     if request.method == 'POST':
@@ -70,6 +73,7 @@ def signin(request):
     context['login_form'] = form
     return render(request,'templates/signin.html', context)
 
+#show signup page
 def signup(request):
     context = {"page":"signup"}
     if request.method == 'POST':
@@ -91,12 +95,13 @@ def signup(request):
     context['login_form'] = form
     return render(request,'templates/signup.html', context)
 
+#show dashboard page
 def dashboard(request):
     context = {"page":"dashboard"}
     context.update({"user": check_auth(request)})
     return render(request,'templates/dashboard.html', context)
 
-
+#show my account page if user, else show signin page
 def myaccount(request):
     context = {"page":"myaccount"}
     email = check_auth(request)
@@ -115,11 +120,13 @@ def myaccount(request):
         return redirect('/signin')
     return render(request,'templates/myaccount.html', context)
 
+
 def generateapi(request):
     # This page (the html one) should ask for the user password to be type if a new key is requested
     # TODO generate new api key
     return redirect('/myaccount')
 
+#deletes current user
 def myaccount_delete(request):
     # This page (the html one) should ask for the user password
     email = check_auth(request)
@@ -127,6 +134,7 @@ def myaccount_delete(request):
     user.delete()
     return logout(request)
 
+#shows edit_account page
 def myaccount_edit(request):
     context = {"page":"account_edit"}
     email = check_auth(request)
@@ -160,16 +168,19 @@ def myaccount_edit(request):
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
 
+#shows my channels page if user, else signin page
 def mychannels(request):
     context = {"page":"mychannels"}
     email = check_auth(request)
     user = User.objects.get(email=email)
     context.update({"user":email})
-    channels = Channel.objects.filter(user=user)
-    context.update({"channels":channels})
-    return render(request,'templates/mychannels.html', context)
+    if user:
+        channels = Channel.objects.filter(user=user)
+        context.update({"channels":channels})
+        return render(request,'templates/mychannels.html', context)
     return render(request,'templates/signin.html', context)
 
+#show createchannel page
 def newchannel(request):
     context = {"page":"newchannel"}
     email = check_auth(request)
@@ -197,6 +208,7 @@ def newchannel(request):
     form.fields['chosensensors'].queryset = Sensor.objects.filter(user=user)
     return render(request,'templates/newchannel.html', context)
 
+#shows electricity page
 def electricity(request):
     context = {"page":"electricity"}
     email = check_auth(request)
@@ -207,6 +219,7 @@ def electricity(request):
     context.update({"since": Data.objects.all().filter(sensor__user=user, sensor__TYPE='Electricity').order_by('date').last().date})
     return render(request,'templates/electricity.html', context)
 
+#shows water page
 def water(request):
     context = {"page":"water"}
     email = check_auth(request)
@@ -214,6 +227,7 @@ def water(request):
     user = User.objects.get(email=email)
     return render(request,'templates/water.html', context)
 
+#shows photovoltaic page
 def photovoltaic(request):
     context = {"page":"photovoltaic"}
     email = check_auth(request)
@@ -221,6 +235,7 @@ def photovoltaic(request):
     user = User.objects.get(email=email)
     return render(request,'templates/photovoltaic.html', context)
 
+#shows weather page
 def weather(request):
     context = {"page":"weather"}
     email = check_auth(request)
@@ -228,6 +243,7 @@ def weather(request):
     user = User.objects.get(email=email)
     return render(request,'templates/weather.html', context)
 
+#shows forecast page
 def forecast(request):
     context = {"page":"forecast"}
     email = check_auth(request)
@@ -235,6 +251,7 @@ def forecast(request):
     user = User.objects.get(email=email)
     return render(request,'templates/forecast.html', context)
 
+#shows advanced page
 def advanced(request):
     context = {"page":"advanced"}
     email = check_auth(request)
@@ -242,6 +259,7 @@ def advanced(request):
     user = User.objects.get(email=email)
     return render(request,'templates/advanced.html', context)
 
+#shows new sensor page page
 def newsensors(request):
     context = {"page":"newsensors"}
     email = check_auth(request)
@@ -271,6 +289,7 @@ def newsensors(request):
     context['form2'] = form2
     return render(request,'templates/new_sensors.html', context)
 
+#shows newbridge page
 def newbridge(request):
     email = check_auth(request)
     user = User.objects.get(email=email)
@@ -292,6 +311,7 @@ def newbridge(request):
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
+#
 def sensors(request):
     context = {"page":"newsensors"}
     email = check_auth(request)
