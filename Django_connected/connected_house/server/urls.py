@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^weather/$', views.weather, name='weather'),
     url(r'^forecast/$', views.forecast, name='forecast'),
     url(r'^advanced/$', views.advanced, name='advanced'),
+    url(r'^setpreferedchannel/$', views.setpreferedchannel, name='setpreferedchannel' )
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += staticfiles_urlpatterns()

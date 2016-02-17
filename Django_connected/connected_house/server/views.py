@@ -92,7 +92,7 @@ def signup(request):
             password = form.cleaned_data['password']
             password2 = form.cleaned_data['password2']
             timezone = form.cleaned_data['timezone']
-            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone)
+            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone, prefered_channel="null")
             user.save()
             return login(request, user)
     else:
@@ -114,7 +114,7 @@ def myaccount(request):
 
     if user:
         context.update({
-        'email': email,
+        'email': user.email,
         'name': user.name,
         'timezone': user.timezone,
         'api': user.API_KEY
@@ -127,8 +127,11 @@ def myaccount(request):
 
 
 def generateapi(request):
-    # This page (the html one) should ask for the user password to be type if a new key is requested
-    # TODO generate new api key
+    # This page (the html one) should ask for the user password to be type if a new key is requested    
+    user = check_auth(request)
+    API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest()
+    user.API_KEY=API_KEY
+    user.save()
     return redirect('/myaccount')
 
 #deletes current user
@@ -219,20 +222,17 @@ def getElec(request):
 #shows my channels page if user, else signin page
 def mychannels(request):
     context = {"page":"mychannels"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user":email})
-    if request.method=='POST':
-        form = MyChannelsForm(request, data=request.POST)
-        is_valid = form.is_valid()
-        print(is_valid)
-        if is_valid:
-            name = form.cleaned_data['name']
-            selected_channel= Channel.objects.get(name=name)
-            user.prefered_channel=selected_channel.API_KEY
+    user = check_auth(request)
+    context.update({"user":user.email})
     channels = Channel.objects.filter(user=user)
     context.update({"channels":channels})
     return render(request,'templates/mychannels.html', context)
+
+def setpreferedchannel(request):
+    user = check_auth(request)
+    user.prefered_channel=request.GET["channel"]
+    user.save()
+    return redirect('/dashboard')
 
 #show createchannel page
 def newchannel(request):
@@ -250,7 +250,8 @@ def newchannel(request):
             name = form.cleaned_data['name']
             chosensensors = form.cleaned_data['chosensensors']
             print(chosensensors)
-            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).digest(), user=user)
+            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest(), user=user)
+            print(hashlib.md5( str(random.getrandbits(256))))
             for s in chosensensors:
                 channel.sensors.add(s)
             channel.save()
