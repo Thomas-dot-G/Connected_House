@@ -13,33 +13,43 @@ from website.models import User, Sensor, Data, Version, Bridge, Channel
 import hashlib, random
 
 
+<<<<<<< HEAD
 # Create your views here.
 #show index page
+=======
+# View linked to the index.
+>>>>>>> origin/master
 def index(request):
     context = {"page":"index"}
-    user_email = request.session.get('user', None)
-    if user_email:
-        try:
-            user = User.objects.get(email=user_email)
-        except Exception as e:
-            request.session.flush()
-            return redirect('/')
-        if user:
-            context.update({"user": user_email})
+    user = request.session.get('user', None)
+    if user:
+        context.update({"user": user_email})
 
     return render(request,'templates/index.html', context)
 
+<<<<<<< HEAD
 #show login page
+=======
+# Login the user by putting its email in the session
+>>>>>>> origin/master
 def login(request, user):
     request.session['user'] = user.email
     return redirect('/dashboard/')
 
+<<<<<<< HEAD
 #show logout page
+=======
+# Logout the user by clearing the session
+>>>>>>> origin/master
 def logout(request):
     request.session.flush()
     return redirect('/')
 
+<<<<<<< HEAD
 #if user's signed in returns user, else show singin page
+=======
+# Method that retrieve the current user in the session and return the user
+>>>>>>> origin/master
 def check_auth(request):
     user_email = request.session.get('user', None)
     context = {"user": user_email}
@@ -53,58 +63,79 @@ def check_auth(request):
             return redirect('/signin')
         return user
 
+<<<<<<< HEAD
 #show signin page
+=======
+# View that give the form for a user to login
+>>>>>>> origin/master
 def signin(request):
     context = {"page":"signin", "loginremember": request.session.get('loginremember')}
     if request.method == 'POST':
         form = SignInForm(request, data=request.POST)
-            
+        
+        # Check if the form (for sensor) is valid (Django checkup linked to the form)           
         is_valid = form.is_valid()
         if is_valid:
+            # Get the data from the posted form
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            remember = form.cleaned_data['remember']
+            remember = form.cleaned_data['remember'] # TODO use that information
             # Use Cookie
             try:
+                # Try to recover the user
                 user = User.objects.get(email=email)
             except Exception as e:
+                # If there was an error, just rerender the form
                 context['login_form'] = form
                 context.update({"error": True})
                 return render(request,'templates/signin.html', context)
+            # Check if the given password match the hashed one
             if check_password(password, user.password):
+                # If true, login the user
                 return login(request, user)
     else:
         form = SignInForm(request)
     context['login_form'] = form
     return render(request,'templates/signin.html', context)
 
-#show signup page
+
+
+# View that give the form for a user to create an account
 def signup(request):
     context = {"page":"signup"}
     if request.method == 'POST':
         form = SignUpForm(request, data=request.POST)
             
+        # Check if the form (for sensor) is valid (Django checkup linked to the form)
         is_valid = form.is_valid()
 
         if is_valid:
+            # Get the data from the posted form
             name = form.cleaned_data['name']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             password2 = form.cleaned_data['password2']
             timezone = form.cleaned_data['timezone']
+
+            # Create the user
             user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone, prefered_channel="null")
+            # Save it in the database
             user.save()
+            # Login the user automatically
             return login(request, user)
     else:
         form = SignUpForm()
     context['login_form'] = form
     return render(request,'templates/signup.html', context)
 
-#show dashboard page
+
+# View linked to the dashboard.html template
+# Empty for now
 def dashboard(request):
     context = {"page":"dashboard"}
     context.update({"user": check_auth(request).email})
     return render(request,'templates/dashboard.html', context)
+
 
 #show my account page if user, else show signin page
 def myaccount(request):
@@ -134,14 +165,16 @@ def generateapi(request):
     user.save()
     return redirect('/myaccount')
 
-#deletes current user
+
+# View called on a post when deleting one's account (no html render), but clear the session after deletion
 def myaccount_delete(request):
     # This page (the html one) should ask for the user password
     user = check_auth(request)
     user.delete()
     return logout(request)
 
-#shows edit_account page
+
+# View and form use to edit one's account
 def myaccount_edit(request):
     context = {"page":"account_edit"}
     user = check_auth(request)
@@ -175,7 +208,9 @@ def myaccount_edit(request):
     return render(request,'templates/account_edit.html', context)
 
 
-@csrf_exempt
+# View used by the javascript ajax method to get the current/last electricity value for a user (and a channel)
+# Return a json response
+@csrf_exempt # csrf_exempt as the POST does not come from a Django Form and will be blocked
 def getAvgElec(request):
     if request.method == 'GET':
         user = check_auth(request)
@@ -189,7 +224,9 @@ def getAvgElec(request):
 
         return response
 
-@csrf_exempt
+# View used by the javascript ajax method to get the average electricity consumption for a user (and a channel)
+# Return a json response
+@csrf_exempt # csrf_exempt as the POST does not come from a Django Form and will be blocked
 def getCurrentElec(request):
     if request.method == 'GET':
         user = check_auth(request)
@@ -201,7 +238,10 @@ def getCurrentElec(request):
 
         return response
 
-@csrf_exempt
+# View used by the javascript ajax method to get the data to make the graph
+# TODO review the data used in the graph
+# Return a json response
+@csrf_exempt # csrf_exempt as the POST does not come from a Django Form and will be blocked
 def getElec(request):
     if request.method == 'GET':
         user = check_auth(request)
@@ -262,7 +302,8 @@ def newchannel(request):
     form.fields['chosensensors'].queryset = Sensor.objects.filter(user=user)
     return render(request,'templates/newchannel.html', context)
 
-#shows electricity page
+
+# View to the electricity.html template
 def electricity(request):
     context = {"page":"electricity"}
     user = check_auth(request)
@@ -275,7 +316,9 @@ def electricity(request):
         context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/electricity.html', context)
 
-#shows water page
+
+# View to the water.html template
+# Might need some revision
 def water(request):
     context = {"page":"water"}
     user = check_auth(request)
@@ -287,14 +330,19 @@ def water(request):
         context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/water.html', context)
 
-#shows photovoltaic page
+
+# Empty View to the photovoltaic.html template
+# TODO with the view
 def photovoltaic(request):
     context = {"page":"photovoltaic"}
     user = check_auth(request)
     context.update({"user": user.email})
     return render(request,'templates/photovoltaic.html', context)
 
-#shows weather page
+
+# View to the forecast.html template
+# The view take into account the sensor type:
+# Temperature, Humidity; Pressure and Luminosity
 def weather(request):
     context = {"page":"weather"}
     user = check_auth(request)
@@ -311,29 +359,38 @@ def weather(request):
         context.update({"luminosity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
     return render(request,'templates/weather.html', context)
 
-#shows forecast page
+
+# View to the forecast.html template
 def forecast(request):
     context = {"page":"forecast"}
     user = check_auth(request)
     context.update({"user": user.email})
     return render(request,'templates/forecast.html', context)
 
-#shows advanced page
+
+# Empty view to the advanced.html template
+# TODO 
 def advanced(request):
     context = {"page":"advanced"}
     user = check_auth(request)
     context.update({"user": user.email})
     return render(request,'templates/advanced.html', context)
 
-#shows new sensor page page
+# View allowing a user to send the POST method to register a new sensor
+# The view also display the forms to create a new sensor and a new bridge
 def newsensors(request):
     context = {"page":"newsensors"}
     user = check_auth(request)
     context.update({"user": user.email})
     if request.method == 'POST':
+
+        # Form for the sensor
         form = SensorForms(request, data=request.POST)
+
+        # Form for the bridge (the following line might be useless)
         form2 = BridgeForms(request, data=request.POST)
-            
+        
+        # Check if the form (for sensor) is valid (Django checkup linked to the form)
         is_valid = form.is_valid()
 
         if is_valid:
@@ -354,7 +411,8 @@ def newsensors(request):
     context['form2'] = form2
     return render(request,'templates/new_sensors.html', context)
 
-#shows newbridge page
+
+# View allowing a user to send the POST method to register a new bridge
 def newbridge(request):
     context = {"page":"newbridge"}
     user = check_auth(request)
@@ -377,7 +435,8 @@ def newbridge(request):
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
-#shows sensors
+
+# Render the view associated with the list of sensors and bridge for the user
 def sensors(request):
     context = {"page":"newsensors"}
     user = check_auth(request)
@@ -386,7 +445,8 @@ def sensors(request):
     context.update({"bridges": Bridge.objects.all().filter(user=user)})
     return render(request,'templates/sensors.html', context)
 
-#return the ID of a prob
+
+# Given a ID string, this method return an array with the specific data
 def getID(identification):
     ID = identification[1:identification.index('-')]
     remaining = identification[identification.index('-')+1:]
@@ -401,6 +461,11 @@ def getID(identification):
     VERSION = remaining[:-1]
     return [ID, NETWORDID, GATEWAY, NODEID, TYPE, VERSION]
 
+# View called when a bridge post probes data to post_data
+# The method update the model for that probe according to its ID
+# The data is then stored in the model with the current time
+
+# csrf_exempt as the POST does not come from a Django Form and will be blocked
 @csrf_exempt
 def post_data(request):
     if request.method == 'POST':
@@ -421,6 +486,12 @@ def post_data(request):
         return redirect('/')
     return HttpResponse("OK")
 
+# View called with a bridge POST to updateme.
+# The method send OK if the bridge is up to date
+# It send an update hex file for a probes if at least one need an update
+# The moteino ID is also updated
+
+# csrf_exempt as the POST does not come from a Django Form and will be blocked
 @csrf_exempt
 def post_Version_Bridge(request):
     if request.method == 'POST':
@@ -442,8 +513,14 @@ def post_Version_Bridge(request):
         return redirect('/')
     return HttpResponse("OK")
 
+# View called with a bridge POST to updateprobes.
+# The method send OK if every probes is up to date
+# It send an update hex file for a probes if at least one need an update
+
+# csrf_exempt as the POST does not come from a Django Form and will be blocked
 @csrf_exempt
 def post_Version_Probes(request):
+    # let only post method (else redirect to index for user)
     if request.method == 'POST':
         identification = getID(request.POST['id'])
         bridge = Bridge.objects.get(name=identification[0])
