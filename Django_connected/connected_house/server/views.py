@@ -51,7 +51,7 @@ def check_auth(request):
         except Exception as e:
             request.session.flush()
             return redirect('/signin')
-        return user 
+        return user
 
 #show signin page
 def signin(request):
@@ -176,10 +176,7 @@ def myaccount_edit(request):
 def getAvgElec(request):
     if request.method == 'GET':
         user = check_auth(request)
-        #TODO to change to delete to get the real one
-        request.session['channel'] = Channel.objects.all().first().API_KEY
-        api = request.session.get('channel', None)
-        channel = Channel.objects.all().filter(API_KEY=api)
+        channel = user.prefered_channel
         if channel:
             sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
             since = Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date
@@ -193,10 +190,7 @@ def getAvgElec(request):
 def getCurrentElec(request):
     if request.method == 'GET':
         user = check_auth(request)
-        #TODO to change to delete to get the real one
-        request.session['channel'] = Channel.objects.all().first().API_KEY
-        api = request.session.get('channel', None)
-        channel = Channel.objects.all().filter(API_KEY=api)
+        channel = user.prefered_channel
         if channel:
             sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
             value = Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value
@@ -208,10 +202,7 @@ def getCurrentElec(request):
 def getElec(request):
     if request.method == 'GET':
         user = check_auth(request)
-        #TODO to change to delete to get the real one
-        request.session['channel'] = Channel.objects.all().first().API_KEY
-        api = request.session.get('channel', None)
-        channel = Channel.objects.all().filter(API_KEY=api)
+        channel = user.prefered_channel
         if channel:
             sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
             maximum = Data.objects.all().filter(sensor__in=sensors).aggregate(Max('value'))['value__max']
@@ -246,9 +237,8 @@ def mychannels(request):
 #show createchannel page
 def newchannel(request):
     context = {"page":"newchannel"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user":email})
+    user = check_auth(request)
+    context.update({"user": user.email})
 
     if request.method == 'POST':
         form = NewChannelForm(request, data=request.POST)    
@@ -275,8 +265,7 @@ def newchannel(request):
 def electricity(request):
     context = {"page":"electricity"}
     user = check_auth(request)
-    api = request.session.get('channel', None)
-    channel = Channel.objects.all().filter(API_KEY=api)
+    channel = user.prefered_channel
     context.update({"user": user.email})
     if channel:
         sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
@@ -290,6 +279,11 @@ def water(request):
     context = {"page":"water"}
     user = check_auth(request)
     context.update({"user": user.email})
+    channel = user.prefered_channel
+    if channel:
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Water')
+        context.update({"water": Data.objects.all().filter(sensor__in=sensors).aggregate(Sum('value'))['value__sum']})
+        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/water.html', context)
 
 #shows photovoltaic page
@@ -304,6 +298,16 @@ def weather(request):
     context = {"page":"weather"}
     user = check_auth(request)
     context.update({"user": user.email})
+    channel = user.prefered_channel
+    if channel:
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Temperature')
+        context.update({"temp": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Humidity')
+        context.update({"humidity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Pressure')
+        context.update({"pressure": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
+        sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Luminosity')
+        context.update({"luminosity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
     return render(request,'templates/weather.html', context)
 
 #shows forecast page
