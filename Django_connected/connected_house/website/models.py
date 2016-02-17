@@ -49,7 +49,9 @@ class Channel(models.Model):
     sensors = models.ManyToManyField(Sensor, related_name='channels')
 
     def __unicode__(self):
+
             return '%s/%s' % (self.name, self.user)
+
 
 class Data(models.Model):
     sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE)

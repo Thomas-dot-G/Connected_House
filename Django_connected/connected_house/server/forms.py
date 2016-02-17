@@ -3,7 +3,8 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 
-from website.models import User, Data, Sensor, Bridge
+from website.models import User, Data, Sensor, Bridge, Channel
+
 
 class SignInForm(forms.ModelForm):
 
@@ -78,6 +79,19 @@ class EditAccountForm(forms.ModelForm):
     def clean(self):
         self.cleaned_data
 
+class NewChannelForm(forms.ModelForm):
+    chosensensors = forms.ModelMultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple, queryset=Sensor.objects.all())
+    class Meta:
+        model = Channel
+        fields = ('name',)
+
+    def __init__(self, request=None, *args, **kwargs):
+        super(NewChannelForm, self).__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs.update({'required': 'required'})
+    def clean(self):
+        return self.cleaned_data        
+
+
 
 class SensorForms(forms.ModelForm):
     
@@ -102,3 +116,4 @@ class BridgeForms(forms.ModelForm):
 
     def clean(self):
         return self.cleaned_data
+

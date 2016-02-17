@@ -170,4 +170,3 @@ $(document).ready(function () {
 		xmlHttp.send(null);
 		
 	};
-

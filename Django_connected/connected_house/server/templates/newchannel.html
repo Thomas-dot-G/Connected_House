@@ -1,0 +1,44 @@
+{% extends "templates/container.html" %}
+
+
+{% block content %}
+
+<div>
+
+  <div class="row">
+    </br></br>
+     <div id="form-newchannel" class="panel-body">
+       <form action="." method="post">
+        {% csrf_token %} 
+        <div class="form-group">
+          <label class="col-sm-4 col-xs-3 control-label">Channel Name</label>
+          <div class="col-sm-8 col-xs-6">{{ NewChannelForm.name }}</div>
+          <br>
+
+            <div class="row">
+             <div class="col-md-2">
+	              <div>
+	              <label>My Sensors</label>
+	              </div>
+
+                <div class="col-sm-8 col-xs-6">{{ NewChannelForm.chosensensors }}</div>
+                <br>
+	               
+
+	                 <div class="btn-group" role="group" aria-label="...">
+
+  		              <input type="submit" value="Create Channel" class="btn btn-lg btn-custom btn-block">
+     
+	                 </div>
+            </div>
+            <label class="col-sm-4 control-label"></label>
+            </div>
+        </div>
+       </form>
+  </div>
+</div>
+<script type="text/javascript">
+
+</script>
+
+{% endblock content %}

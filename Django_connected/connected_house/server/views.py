@@ -8,8 +8,10 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.db.models import Avg, Max, Min
 
-from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms
+from .forms import SignInForm, SignUpForm, EditAccountForm, SensorForms, BridgeForms, NewChannelForm
 from website.models import User, Sensor, Data, Version, Bridge, Channel
+import hashlib, random
+
 
 # Create your views here.
 
@@ -54,7 +56,6 @@ def signin(request):
         form = SignInForm(request, data=request.POST)
             
         is_valid = form.is_valid()
-        print is_valid
         if is_valid:
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
@@ -213,6 +214,43 @@ def getElec(request):
             response = HttpResponse([array], content_type="text/plain")
 
         return response
+
+def mychannels(request):
+    context = {"page":"mychannels"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user":email})
+    channels = Channel.objects.filter(user=user)
+    context.update({"channels":channels})
+    return render(request,'templates/mychannels.html', context)
+    return render(request,'templates/signin.html', context)
+
+def newchannel(request):
+    context = {"page":"newchannel"}
+    email = check_auth(request)
+    user = User.objects.get(email=email)
+    context.update({"user":email})
+
+    if request.method == 'POST':
+        form = NewChannelForm(request, data=request.POST)    
+            
+        is_valid = form.is_valid()
+        print(is_valid)
+        if is_valid:
+
+            name = form.cleaned_data['name']
+            chosensensors = form.cleaned_data['chosensensors']
+            print(chosensensors)
+            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).digest(), user=user)
+            for s in chosensensors:
+                channel.sensors.add(s)
+            channel.save()
+            return login(request, user)
+    else:
+        form = NewChannelForm()
+    context['NewChannelForm'] = form
+    form.fields['chosensensors'].queryset = Sensor.objects.filter(user=user)
+    return render(request,'templates/newchannel.html', context)
 
 def electricity(request):
     context = {"page":"electricity"}
