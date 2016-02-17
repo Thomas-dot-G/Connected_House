@@ -79,6 +79,19 @@ class EditAccountForm(forms.ModelForm):
     def clean(self):
         self.cleaned_data
 
+class MyChannelsForm(forms.ModelForm):
+    class Meta:
+        model = Channel
+        fields = ('name',)
+    def __init__(self, request=None, *args, **kwargs):
+        super(NewChannelForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        return self.cleaned_data        
+
+
+
+
 class NewChannelForm(forms.ModelForm):
     chosensensors = forms.ModelMultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple, queryset=Sensor.objects.all())
     class Meta:

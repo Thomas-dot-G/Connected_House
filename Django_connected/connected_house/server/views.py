@@ -39,6 +39,7 @@ def logout(request):
     request.session.flush()
     return redirect('/')
 
+#if user's signed in returns user, else show singin page
 def check_auth(request):
     user_email = request.session.get('user', None)
     context = {"user": user_email}
@@ -171,8 +172,6 @@ def myaccount_edit(request):
     return render(request,'templates/account_edit.html', context)
 
 
-#shows my channels page if user, else signin page
-
 @csrf_exempt
 def getAvgElec(request):
     if request.method == 'GET':
@@ -226,17 +225,23 @@ def getElec(request):
 
         return response
 
-
+#shows my channels page if user, else signin page
 def mychannels(request):
     context = {"page":"mychannels"}
     email = check_auth(request)
     user = User.objects.get(email=email)
     context.update({"user":email})
-    if user:
-        channels = Channel.objects.filter(user=user)
-        context.update({"channels":channels})
-        return render(request,'templates/mychannels.html', context)
-    return render(request,'templates/signin.html', context)
+    if request.method=='POST':
+        form = MyChannelsForm(request, data=request.POST)
+        is_valid = form.is_valid()
+        print(is_valid)
+        if is_valid:
+            name = form.cleaned_data['name']
+            selected_channel= Channel.objects.get(name=name)
+            user.prefered_channel=selected_channel.API_KEY
+    channels = Channel.objects.filter(user=user)
+    context.update({"channels":channels})
+    return render(request,'templates/mychannels.html', context)
 
 #show createchannel page
 def newchannel(request):
@@ -367,7 +372,7 @@ def newbridge(request):
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
-#
+#shows sensors
 def sensors(request):
     context = {"page":"newsensors"}
     user = check_auth(request)
@@ -376,6 +381,7 @@ def sensors(request):
     context.update({"bridges": Bridge.objects.all().filter(user=user)})
     return render(request,'templates/sensors.html', context)
 
+#return the ID of a prob
 def getID(identification):
     ID = identification[1:identification.index('-')]
     remaining = identification[identification.index('-')+1:]
