@@ -13,12 +13,7 @@ from website.models import User, Sensor, Data, Version, Bridge, Channel
 import hashlib, random
 
 
-<<<<<<< HEAD
-# Create your views here.
-#show index page
-=======
 # View linked to the index.
->>>>>>> origin/master
 def index(request):
     context = {"page":"index"}
     user = request.session.get('user', None)
@@ -27,29 +22,19 @@ def index(request):
 
     return render(request,'templates/index.html', context)
 
-<<<<<<< HEAD
-#show login page
-=======
 # Login the user by putting its email in the session
->>>>>>> origin/master
 def login(request, user):
     request.session['user'] = user.email
     return redirect('/dashboard/')
 
-<<<<<<< HEAD
-#show logout page
-=======
+
 # Logout the user by clearing the session
->>>>>>> origin/master
 def logout(request):
     request.session.flush()
     return redirect('/')
 
-<<<<<<< HEAD
-#if user's signed in returns user, else show singin page
-=======
+
 # Method that retrieve the current user in the session and return the user
->>>>>>> origin/master
 def check_auth(request):
     user_email = request.session.get('user', None)
     context = {"user": user_email}
@@ -63,11 +48,7 @@ def check_auth(request):
             return redirect('/signin')
         return user
 
-<<<<<<< HEAD
-#show signin page
-=======
 # View that give the form for a user to login
->>>>>>> origin/master
 def signin(request):
     context = {"page":"signin", "loginremember": request.session.get('loginremember')}
     if request.method == 'POST':
