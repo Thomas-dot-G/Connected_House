@@ -27,10 +27,12 @@ def login(request, user):
     request.session['user'] = user.email
     return redirect('/dashboard/')
 
+
 # Logout the user by clearing the session
 def logout(request):
     request.session.flush()
     return redirect('/')
+
 
 # Method that retrieve the current user in the session and return the user
 def check_auth(request):
@@ -77,6 +79,8 @@ def signin(request):
     context['login_form'] = form
     return render(request,'templates/signin.html', context)
 
+
+
 # View that give the form for a user to create an account
 def signup(request):
     context = {"page":"signup"}
@@ -93,8 +97,9 @@ def signup(request):
             password = form.cleaned_data['password']
             password2 = form.cleaned_data['password2']
             timezone = form.cleaned_data['timezone']
+
             # Create the user
-            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone)
+            user = User(name=name, email=email, password=make_password(password, salt=name+'connect2', hasher='default'), timezone=timezone, prefered_channel="null")
             # Save it in the database
             user.save()
             # Login the user automatically
@@ -104,6 +109,7 @@ def signup(request):
     context['login_form'] = form
     return render(request,'templates/signup.html', context)
 
+
 # View linked to the dashboard.html template
 # Empty for now
 def dashboard(request):
@@ -111,7 +117,8 @@ def dashboard(request):
     context.update({"user": check_auth(request).email})
     return render(request,'templates/dashboard.html', context)
 
-# View used to see one's account
+
+#show my account page if user, else show signin page
 def myaccount(request):
     context = {"page":"myaccount"}    
     user = check_auth(request)
@@ -119,7 +126,7 @@ def myaccount(request):
 
     if user:
         context.update({
-        'email': email,
+        'email': user.email,
         'name': user.name,
         'timezone': user.timezone,
         'api': user.API_KEY
@@ -130,10 +137,15 @@ def myaccount(request):
         return redirect('/signin')
     return render(request,'templates/myaccount.html', context)
 
+
 def generateapi(request):
-    # This page (the html one) should ask for the user password to be type if a new key is requested
-    # TODO generate new api key
+    # This page (the html one) should ask for the user password to be type if a new key is requested    
+    user = check_auth(request)
+    API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest()
+    user.API_KEY=API_KEY
+    user.save()
     return redirect('/myaccount')
+
 
 # View called on a post when deleting one's account (no html render), but clear the session after deletion
 def myaccount_delete(request):
@@ -141,6 +153,7 @@ def myaccount_delete(request):
     user = check_auth(request)
     user.delete()
     return logout(request)
+
 
 # View and form use to edit one's account
 def myaccount_edit(request):
@@ -174,6 +187,7 @@ def myaccount_edit(request):
         form = EditAccountForm(initial=data)
     context['account_form'] = form
     return render(request,'templates/account_edit.html', context)
+
 
 # View used by the javascript ajax method to get the current/last electricity value for a user (and a channel)
 # Return a json response
@@ -226,15 +240,22 @@ def getElec(request):
 
         return response
 
+#shows my channels page if user, else signin page
 def mychannels(request):
     context = {"page":"mychannels"}
-    email = check_auth(request)
-    user = User.objects.get(email=email)
-    context.update({"user":email})
+    user = check_auth(request)
+    context.update({"user":user.email})
     channels = Channel.objects.filter(user=user)
     context.update({"channels":channels})
     return render(request,'templates/mychannels.html', context)
 
+def setpreferedchannel(request):
+    user = check_auth(request)
+    user.prefered_channel=request.GET["channel"]
+    user.save()
+    return redirect('/dashboard')
+
+#show createchannel page
 def newchannel(request):
     context = {"page":"newchannel"}
     user = check_auth(request)
@@ -250,7 +271,8 @@ def newchannel(request):
             name = form.cleaned_data['name']
             chosensensors = form.cleaned_data['chosensensors']
             print(chosensensors)
-            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).digest(), user=user)
+            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest(), user=user)
+            print(hashlib.md5( str(random.getrandbits(256))))
             for s in chosensensors:
                 channel.sensors.add(s)
             channel.save()
@@ -260,6 +282,7 @@ def newchannel(request):
     context['NewChannelForm'] = form
     form.fields['chosensensors'].queryset = Sensor.objects.filter(user=user)
     return render(request,'templates/newchannel.html', context)
+
 
 # View to the electricity.html template
 def electricity(request):
@@ -274,6 +297,7 @@ def electricity(request):
         context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/electricity.html', context)
 
+
 # View to the water.html template
 # Might need some revision
 def water(request):
@@ -287,6 +311,7 @@ def water(request):
         context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
     return render(request,'templates/water.html', context)
 
+
 # Empty View to the photovoltaic.html template
 # TODO with the view
 def photovoltaic(request):
@@ -294,6 +319,7 @@ def photovoltaic(request):
     user = check_auth(request)
     context.update({"user": user.email})
     return render(request,'templates/photovoltaic.html', context)
+
 
 # View to the forecast.html template
 # The view take into account the sensor type:
@@ -314,12 +340,14 @@ def weather(request):
         context.update({"luminosity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
     return render(request,'templates/weather.html', context)
 
+
 # View to the forecast.html template
 def forecast(request):
     context = {"page":"forecast"}
     user = check_auth(request)
     context.update({"user": user.email})
     return render(request,'templates/forecast.html', context)
+
 
 # Empty view to the advanced.html template
 # TODO 
@@ -364,6 +392,7 @@ def newsensors(request):
     context['form2'] = form2
     return render(request,'templates/new_sensors.html', context)
 
+
 # View allowing a user to send the POST method to register a new bridge
 def newbridge(request):
     context = {"page":"newbridge"}
@@ -387,6 +416,7 @@ def newbridge(request):
     context['form'] = form
     return render(request,'templates/new_sensors.html', context)
 
+
 # Render the view associated with the list of sensors and bridge for the user
 def sensors(request):
     context = {"page":"newsensors"}
@@ -395,6 +425,7 @@ def sensors(request):
     context.update({"sensors": Sensor.objects.all().filter(user=user)})
     context.update({"bridges": Bridge.objects.all().filter(user=user)})
     return render(request,'templates/sensors.html', context)
+
 
 # Given a ID string, this method return an array with the specific data
 def getID(identification):

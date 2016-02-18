@@ -10,6 +10,7 @@ class User(models.Model):
     email = models.EmailField(max_length=70,blank=True, primary_key=True)
     timezone = TimeZoneField(default='Europe/Paris')
     password = models.CharField(max_length=30)
+    prefered_channel = models.CharField(max_length=200, null=True)
 
     def __unicode__(self):
             return self.name

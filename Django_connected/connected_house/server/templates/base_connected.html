@@ -65,7 +65,34 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="/">Connected house - Proto 1.0</a>
-            </div>
+           
+            {% if '@' in user %}<a class="navbar-brand page-scroll" href="/dashboard/">My house</a>
+                      <ul class="nav navbar-nav navbar-right">
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        Channels
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/mychannels">My Channels</a></li>
+                        <li><a href="/mychannels/new">New Channel</a></li>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-channel -->
+                  </li>
+                                 <ul class="nav navbar-nav navbar-right">
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                       Sensors
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/mysensors">My Sensors</a></li>
+                        <li><a href="/mysensors/new">New Sensor</a></li>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-channel -->
+                  </li>
+                {% endif %}
+                 </div>
             <!-- /.navbar-header -->
 
             <ul class="nav navbar-top-links navbar-right">

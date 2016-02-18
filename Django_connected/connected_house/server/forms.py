@@ -96,6 +96,8 @@ class EditAccountForm(forms.ModelForm):
     # Necessary to validate the form
     def clean(self):
         self.cleaned_data
+     
+
 
 class NewChannelForm(forms.ModelForm):
 

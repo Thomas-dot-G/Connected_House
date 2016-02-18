@@ -13,17 +13,19 @@
   <div class="col-pad">
 
 {% if channels %}
+<form action="." method="post">
+{% csrf_token %} 
 <table class="table table-condensed">
  <tr>
     <th>Channel Name</th>
     <th>API_KEY</th>
-    <th>Link</th>
+    <th>Watch</th>
   </tr>
 {% for c in channels %}
  <tr>
  	<th>{{c.name}}</th>
  	<th>{{c.API_KEY}}</th>
- 	<th>link</th>
+ 	<th><a href="/setpreferedchannel?channel={{c.API_KEY}}">Watch</a></th>
  </tr>
  {% endfor %}
  {% else %}
