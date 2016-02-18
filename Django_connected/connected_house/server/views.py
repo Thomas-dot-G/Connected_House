@@ -18,7 +18,7 @@ def index(request):
     context = {"page":"index"}
     user = request.session.get('user', None)
     if user:
-        context.update({"user": user_email})
+        context.update({"user": user.email})
 
     return render(request,'templates/index.html', context)
 
@@ -198,7 +198,7 @@ def getAvgElec(request):
         channel = user.prefered_channel
         if channel:
             sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
-            since = Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date
+            since = Data.objects.all().filter(sensor__in=sensors).order_by('date').first().date
             data = Data.objects.all().filter(sensor__in=sensors).aggregate(Avg('value'))['value__avg']
             body = '{"data": "%.2f", "since": "%s"}' %(data, since)
             response = HttpResponse(body, content_type="text/plain")
@@ -269,9 +269,10 @@ def newchannel(request):
         if is_valid:
 
             name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
             chosensensors = form.cleaned_data['chosensensors']
             print(chosensensors)
-            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest(), user=user)
+            channel = Channel(name=name, API_KEY=hashlib.md5( str(random.getrandbits(256)) ).hexdigest(), user=user, description=description)
             print(hashlib.md5( str(random.getrandbits(256))))
             for s in chosensensors:
                 channel.sensors.add(s)
@@ -294,7 +295,7 @@ def electricity(request):
         sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Electricity')
         context.update({"currentElectricity": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().value})
         context.update({"averageElectricity": Data.objects.all().filter(sensor__in=sensors).aggregate(Avg('value'))['value__avg']})
-        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
+        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().date})
     return render(request,'templates/electricity.html', context)
 
 
@@ -308,7 +309,7 @@ def water(request):
     if channel:
         sensors = Sensor.objects.all().filter(channels=channel, user=user, TYPE='Water')
         context.update({"water": Data.objects.all().filter(sensor__in=sensors).aggregate(Sum('value'))['value__sum']})
-        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').last().date})
+        context.update({"since": Data.objects.all().filter(sensor__in=sensors).order_by('date').first().date})
     return render(request,'templates/water.html', context)
 
 

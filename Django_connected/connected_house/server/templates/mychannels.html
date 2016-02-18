@@ -19,12 +19,14 @@
  <tr>
     <th>Channel Name</th>
     <th>API_KEY</th>
+    <th>description</th>
     <th>Watch</th>
   </tr>
 {% for c in channels %}
  <tr>
  	<th>{{c.name}}</th>
  	<th>{{c.API_KEY}}</th>
+ 	<th>{{c.description}}</th>
  	<th><a href="/setpreferedchannel?channel={{c.API_KEY}}">Watch</a></th>
  </tr>
  {% endfor %}
