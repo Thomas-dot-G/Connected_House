@@ -553,13 +553,13 @@ void loop()
     Blink(LED,3);
       */
     memset(buf,'\0',20);
-    parseMessage(json,buf,2);
+    parseMessage(json,buf,3);
     if (DEBUG==1) Serial.print("PROBE :");    
     if (DEBUG==1) Serial.println(buf);
     
-    if (strcmp(buf,"001")==0)    UpdateTeleIC(json);
+    if (strcmp(buf,"1")==0)    UpdateTeleIC(json);
     if (strcmp(buf,"2")==0)    UpdateTempInt(json);
-    if (strcmp(buf,"003")==0)    UpdateMeteo(json);
+    if (strcmp(buf,"3")==0)    UpdateMeteo(json);
     
     }
     else

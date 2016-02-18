@@ -40,11 +40,11 @@
 #include <RFM69.h>          //get it here: https://www.github.com/lowpowerlab/rfm69
 #include <SPI.h>
 #include <SPIFlash.h>      //get it here: https://www.github.com/lowpowerlab/spiflash
-#include <WirelessHEX69_1.h> //modify from the original source: get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
+#include <WirelessProg_Gateway.h> //modify from the original source: get it here: https://github.com/LowPowerLab/WirelessProgramming/tree/master/WirelessHEX69
 //#include <avr/pgmspace.h> // lib to use the PROGMEM memory (flash memory)
 #include <Ethernet.h>
 
-#define NODEID             001  //this node's ID, should be unique among nodes on this NETWORKID
+#define NODEID             001 //this node's ID, should be unique among nodes on this NETWORKID
 #define NETWORKID          100  //what network this node is on
 //Match frequency to the hardware version of the radio on your Moteino (uncomment one):
 #define FREQUENCY   RF69_433MHZ
@@ -94,7 +94,6 @@ void setup(){
 }
 
 void loop(){
-
 
     // Length of the input: things that will be sent to the target
     byte inputLen;
