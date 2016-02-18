@@ -103,7 +103,7 @@ class NewChannelForm(forms.ModelForm):
 
     #List of all the sensors
     chosensensors = forms.ModelMultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple, queryset=Sensor.objects.all())
-    description = forms.CharField( widget=forms.Textarea(attrs=['class': 'tall']) )
+    description = forms.CharField( widget=forms.Textarea(attrs={'class': 'tall'}) )
     class Meta:
         # Form linked to the Channel model
         model = Channel
