@@ -497,7 +497,7 @@ def post_Version_Bridge(request):
 
         if bridge.VERSION is not Version.objects.get(TYPE="Bridge"):
             response = HttpResponse(content_type='application/force-download')
-            response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+            response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('bridge.hex')
             response['X-Sendfile'] = smart_str('versions/bridge.hex')
             return response
     else:
@@ -518,11 +518,10 @@ def post_Version_Probes(request):
         probes = Sensor.objects.filter(bridge=bridge)
 
         for p in probes:
-            print Version.objects.get(TYPE=p.TYPE)
             if p.VERSION is not Version.objects.get(TYPE=p.TYPE):
                 response = HttpResponse(content_type='application/force-download')
                 response['HTTP_ACCEPT_LANGUAGE'] =  p.NODEID
-                response['Content-Disposition'] = 'attachment; filename=%s' % smart_str('flash.hex')
+                response['Content-Disposition'] = 'attachment; filename=%s.hex' % p.TYPE
                 response['X-Sendfile'] = smart_str('versions/%s.hex' % p.TYPE)
                 return response
     else:
