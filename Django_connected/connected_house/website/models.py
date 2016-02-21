@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from timezone_field import TimeZoneField
+import hashlib, random
 
 
 class User(models.Model):
@@ -16,7 +17,8 @@ class User(models.Model):
             return self.name
 
 class Bridge(models.Model):
-    name = models.CharField(max_length=200, primary_key=True)
+    id = models.CharField(max_length=200, primary_key=True, default=hashlib.md5( str(random.getrandbits(256)) ).hexdigest())
+    name = models.CharField(max_length=200, default=id)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     NETWORKID = models.CharField(max_length=200, null=True)
     NODEID = models.CharField(max_length=200, default='0')
@@ -32,7 +34,8 @@ class Type(models.Model):
             return self.name
 
 class Sensor(models.Model):
-    name = models.CharField(max_length=200, primary_key=True)
+    id = models.CharField(max_length=200, primary_key=True, default=hashlib.md5( str(random.getrandbits(256)) ).hexdigest())
+    name = models.CharField(max_length=200, default=id)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     bridge = models.ForeignKey(Bridge, on_delete=models.SET_NULL, null=True) 
     NETWORKID = models.CharField(max_length=200, null=True)

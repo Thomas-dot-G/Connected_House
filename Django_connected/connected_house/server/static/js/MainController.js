@@ -1,11 +1,8 @@
-pistApp.controller('MainController', ['$scope', '$http', '$interval', 'storage', function($scope, $http, $interval, storage){
 	var jours = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-	$scope.load = true;
-	$scope.ready = false;
-	$scope.input = true;
-	$scope.errors = false;
-
+ $(document).ready(function () {
+    current();
+});
 
 	if (storage.get('forecast') !== null) {
 		if (new Date(storage.get('forecast').expire) <= new Date()) {
@@ -138,11 +135,9 @@ APIKEYOPENWEATHER)
 	var intervalTempInt = $interval(control, 10000);
 	var intervalReste= $interval(control2, 10000);
 
-	$scope.energyReady = false;
 	function current() {
-		$http.get('http://kgb.emn.fr:8001/channels/4/field/6.json?results=310&key=94BREBU27ZFTXJ38')
-			.then(function(result) {
-				var donnees = result.data.feeds
+		$.getJSON('http://127.0.0.1:8000/energy/electricity/global/', function(result) {
+				var donnees = result
 					.filter(function(element) {
 						return element.field6 !== null;
 					})
@@ -219,21 +214,12 @@ APIKEYOPENWEATHER)
 			          }
 			        }]
 			      });
-			$scope.energyReady = true;
 			});
 	}
 	current();
 	current();//deuxieme appel pour forcer le redimensionnement (car sinon bug sur Safari)
 	var intervalPromiseCurrent = $interval(current, 20000);
-	$scope.$on('$destroy', function () { 
-		$interval.cancel(intervalPromiseCurrent);
-		$interval.cancel(intervalTempInt); 
-		$interval.cancel(intervalReste); 		
-	});
-	
 
-	
-}]);
 
 /*pistApp.directive('btn', function() {
 	return {
