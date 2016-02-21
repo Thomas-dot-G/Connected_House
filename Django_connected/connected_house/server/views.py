@@ -410,22 +410,29 @@ def newbridge(request):
     user = check_auth(request)
     context.update({"user": user.email})
     if request.method == 'POST':
-        form = BridgeForms(request, data=request.POST)
+
+        # Form for the sensor
+        form = SensorForms(request, data=request.POST)
+
+        form2 = BridgeForms(request, data=request.POST)
             
-        is_valid = form.is_valid()
+        is_valid = form2.is_valid()
 
         if is_valid:
-            id = form.cleaned_data['id']
-            name = form.cleaned_data['name']
-            networkid = form.cleaned_data['NETWORKID']
-            nodeid = form.cleaned_data['NODEID']
-            version = form.cleaned_data['VERSION']
+            id = form2.cleaned_data['id']
+            name = form2.cleaned_data['name']
+            networkid = form2.cleaned_data['NETWORKID']
+            nodeid = form2.cleaned_data['NODEID']
+            version = form2.cleaned_data['VERSION']
             bridge = Bridge(id=id, name=name, user=user, NETWORKID=networkid, NODEID=nodeid, VERSION=version)
             bridge.save()
             return redirect('sensors')
     else:
         form = SensorForms()
+        form2 = SensorForms()
+    form.fields['bridge'].queryset = Bridge.objects.filter(user=user)
     context['form'] = form
+    context['form2'] = form2
     return render(request,'templates/new_sensors.html', context)
 
 

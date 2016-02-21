@@ -133,7 +133,11 @@ class SensorForms(forms.ModelForm):
     
     # Necessary to validate the form
     def clean(self):
-        return self.cleaned_data
+        sensor = Sensor.objects.all().filter(name=self.data['name'])
+        if sensor.count() > 0:
+            raise forms.ValidationError('Name already used')
+        else:
+            return self.cleaned_data
 
 class BridgeForms(forms.ModelForm):
     
@@ -148,5 +152,9 @@ class BridgeForms(forms.ModelForm):
     
     # Necessary to validate the form
     def clean(self):
-        return self.cleaned_data
+        bridge = Bridge.objects.all().filter(name=self.data['name'])
+        if bridge.count() > 0:
+            raise forms.ValidationError('Name already used')
+        else:
+            return self.cleaned_data
 
