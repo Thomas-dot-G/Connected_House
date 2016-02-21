@@ -385,13 +385,14 @@ def newsensors(request):
         is_valid = form.is_valid()
 
         if is_valid:
+            id = form.cleaned_data['id']
             name = form.cleaned_data['name']
             bridge = form.cleaned_data['bridge']
             networkid = form.cleaned_data['NETWORKID']
             nodeid = form.cleaned_data['NODEID']
             Type = form.cleaned_data['TYPE']
             version = form.cleaned_data['VERSION']
-            sensor = Sensor(name=name, user=user, bridge=bridge, NETWORKID=networkid, NODEID=nodeid, TYPE=Type, VERSION=version)
+            sensor = Sensor(id=id, name=name, user=user, bridge=bridge, NETWORKID=networkid, NODEID=nodeid, TYPE=Type, VERSION=version)
             sensor.save()
             return redirect('sensors')
     else:
@@ -418,11 +419,12 @@ def newbridge(request):
         is_valid = form2.is_valid()
 
         if is_valid:
+            id = form2.cleaned_data['id']
             name = form2.cleaned_data['name']
             networkid = form2.cleaned_data['NETWORKID']
             nodeid = form2.cleaned_data['NODEID']
             version = form2.cleaned_data['VERSION']
-            bridge = Bridge(name=name, user=user, NETWORKID=networkid, NODEID=nodeid, VERSION=version)
+            bridge = Bridge(id=id, name=name, user=user, NETWORKID=networkid, NODEID=nodeid, VERSION=version)
             bridge.save()
             return redirect('sensors')
     else:
@@ -468,7 +470,6 @@ def getID(identification):
 def post_data(request):
     if request.method == 'POST':
         value = request.POST['data']
-        print request.POST['id']
         identification = getID(request.POST['id'])
         sensor = Sensor.objects.get(name=identification[0])
         if sensor.NETWORKID is not identification[1] or sensor.bridge is not identification[2] or sensor.NODEID is not identification[3] or sensor.TYPE is not identification[4] or sensor.VERSION is not identification[5]:
@@ -478,7 +479,7 @@ def post_data(request):
             sensor.TYPE = identification[4]
             sensor.VERSION = identification[5]
             sensor.save()
-        data = Data(sensor=Sensor.objects.get(name=identification[0]), value=value)
+        data = Data(sensor=Sensor.objects.get(id=identification[0]), value=value)
         data.save()
     else:
         return redirect('/')
@@ -494,7 +495,7 @@ def post_data(request):
 def post_Version_Bridge(request):
     if request.method == 'POST':
         identification = getID(request.POST['id'])
-        bridge = Bridge.objects.get(name=identification[0])
+        bridge = Bridge.objects.get(id=identification[0])
 
         if bridge.VERSION is not identification[5] or bridge.NODEID is not identification[3] or bridge.VERSION is not identification[5]:
             bridge.NETWORKID = identification[1]
@@ -521,7 +522,7 @@ def post_Version_Probes(request):
     # let only post method (else redirect to index for user)
     if request.method == 'POST':
         identification = getID(request.POST['id'])
-        bridge = Bridge.objects.get(name=identification[0])
+        bridge = Bridge.objects.get(id=identification[0])
         probes = Sensor.objects.filter(bridge=bridge)
 
         for p in probes:

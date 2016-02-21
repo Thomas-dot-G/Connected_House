@@ -126,7 +126,7 @@ class SensorForms(forms.ModelForm):
         # Form linked to the Sensor model
         model = Sensor
         # The other fields to show
-        fields = ('name', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
+        fields = ('name', 'id', 'bridge', 'NETWORKID', 'NODEID', 'VERSION', 'TYPE')
 
     def __init__(self, request=None, *args, **kwargs):
         super(SensorForms, self).__init__(*args, **kwargs)
@@ -145,7 +145,7 @@ class BridgeForms(forms.ModelForm):
         # Form linked to the Sensor model
         model = Bridge
         # The other fields to show
-        fields = ('name', 'NETWORKID', 'NODEID', 'VERSION')
+        fields = ('name', 'id', 'NETWORKID', 'NODEID', 'VERSION')
 
     def __init__(self, request=None, *args, **kwargs):
         super(BridgeForms, self).__init__(*args, **kwargs)
